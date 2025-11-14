@@ -105,6 +105,8 @@ public sealed unsafe partial class FFmpegGodotVideoProcess : RefCounted
 
         _texture = texture;
 
+        _render = new FFmpegGodotVideoRenderTextureShaderYUV(_texture, _decoder);
+
         _decoder.SeekCompleted += OnSeekCompleted;
 
         while (_decoder.TryGetNextFrame(out var frame, out _))
@@ -287,21 +289,6 @@ public sealed unsafe partial class FFmpegGodotVideoProcess : RefCounted
                         var v = new ReadOnlySpan<byte>(frame.data[2], vStride * uvHeight);
 
                         int padding = yStride - frame.width;
-
-                        if (_render == null)
-                        {
-                            _render = new FFmpegGodotVideoRenderTextureShaderYUV(_texture, _decoder);
-
-                            _render.SetTintColor(_color);
-
-                            _render.SetHue(_hue);
-
-                            _render.SetSaturation(_saturation);
-
-                            _render.SetLightness(_lightness);
-
-                            _render.SetContrast(_contrast);
-                        }
 
                         _render?.UpdateYUVTexture(
                             yStride,

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace FFmpegMediaPlayer;
@@ -19,8 +20,12 @@ internal static partial class FFmpegLogger
 
         string className = FormatClassName(caller.GetType().Name);
 
+        var stackFrame = new StackFrame(1, true);
+
+        var lineNumber = stackFrame.GetFileLineNumber();
+
 #if GODOT
-        Godot.GD.PrintRich($"[color=green][{className}] {what}[/color]");
+        Godot.GD.PrintRich($"[color=green][{className}, {lineNumber}] {what}[/color]");
 #else
 
 #endif
@@ -33,8 +38,12 @@ internal static partial class FFmpegLogger
 
         string className = FormatClassName(caller.GetType().Name);
 
+        var stackFrame = new StackFrame(1, true);
+
+        var lineNumber = stackFrame.GetFileLineNumber();
+
 #if GODOT
-        Godot.GD.PrintRich($"[color=green][{className}] ", string.Join("", what), "[/color]");
+        Godot.GD.PrintRich($"[color=green][{className}, {lineNumber}] ", string.Join(string.Empty, what), "[/color]");
 #else
 
 #endif
@@ -44,8 +53,12 @@ internal static partial class FFmpegLogger
     {
         string className = FormatClassName(caller.GetType().Name);
 
+        var stackFrame = new StackFrame(1, true);
+
+        var lineNumber = stackFrame.GetFileLineNumber();
+
 #if GODOT
-        Godot.GD.PrintRich($"[color=yellow][{className}] {what}[/color]");
+        Godot.GD.PrintRich($"[color=yellow][{className}, {lineNumber}] {what}[/color]");
 #else
 
 #endif
@@ -55,8 +68,12 @@ internal static partial class FFmpegLogger
     {
         string className = FormatClassName(caller.GetType().Name);
 
+        var stackFrame = new StackFrame(1, true);
+
+        var lineNumber = stackFrame.GetFileLineNumber();
+
 #if GODOT
-        Godot.GD.PrintRich($"[color=yellow][{className}] ", string.Join("", what), "[/color]");
+        Godot.GD.PrintRich($"[color=yellow][{className}, {lineNumber}] ", string.Join(string.Empty, what), "[/color]");
 #else
 
 #endif
@@ -66,8 +83,12 @@ internal static partial class FFmpegLogger
     {
         string className = FormatClassName(caller.GetType().Name);
 
+        var stackFrame = new StackFrame(1, true);
+
+        var lineNumber = stackFrame.GetFileLineNumber();
+
 #if GODOT
-        Godot.GD.PrintRich($"[color=red][{className}] {what}[/color]");
+        Godot.GD.PrintRich($"[color=red][{className}, {lineNumber}] {what}[/color]");
 #else
 
 #endif
@@ -77,8 +98,12 @@ internal static partial class FFmpegLogger
     {
         string className = FormatClassName(caller.GetType().Name);
 
+        var stackFrame = new StackFrame(1, true);
+
+        var lineNumber = stackFrame.GetFileLineNumber();
+
 #if GODOT
-        Godot.GD.PrintRich($"[color=red][{className}] ", string.Join("", what), "[/color]");
+        Godot.GD.PrintRich($"[color=red][{className}, {lineNumber}] ", string.Join(string.Empty, what), "[/color]");
 #else
 
 #endif

@@ -17,18 +17,24 @@ internal static class FFmpegBinariesHelper
 #if GODOT
             probe = "addons/FFmpegGodotMediaPlayer/libs/win-x64";
 #else
-            probe = Path.Combine("FFmpeg", "bin", "x64");
+
 #endif
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+#if GODOT
             probe = "addons/FFmpegGodotMediaPlayer/libs/linux-x64";
+#else
+
+#endif
+        }
         else
         {
             FFmpegLogger.LogErr(typeof(FFmpegBinariesHelper), "Current platform is not supported!");
             return;
         }
 
-        if (current != null)
+        if (current != null && probe != string.Empty)
         {
             var ffmpegBinaryPath = Path.Combine(current, probe);
 
@@ -43,5 +49,7 @@ internal static class FFmpegBinariesHelper
                 }
             }
         }
+        else
+            FFmpegLogger.LogErr(typeof(FFmpegBinariesHelper), "Cannot load FFmpeg shared library!");
     }
 }
