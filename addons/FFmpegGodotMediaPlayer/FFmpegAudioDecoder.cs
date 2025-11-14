@@ -67,6 +67,10 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
     private bool _codecFlushed = false;
 
+    private object _seekLock = new();
+
+    private object _filterLock = new();
+
     public FFmpegAudioDecoder(FFmpegMediaSource source)
     {
         try
@@ -514,15 +518,18 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
     private void UpdateFilter()
     {
-        FlushFilter();
+        lock (_filterLock)
+        {
+            FlushFilter();
 
-        DisposeFilter();
+            DisposeFilter();
 
-        string outputFormatFilter = $"aformat=sample_fmts=flt:channel_layouts=stereo";
+            string outputFormatFilter = $"aformat=sample_fmts=flt:channel_layouts=stereo";
 
-        string filters = GetFilters(_outputPitch, _outputSpeed);
+            string filters = GetFilters(_outputPitch, _outputSpeed);
 
-        InitFilter($"{filters},{outputFormatFilter}");
+            InitFilter($"{filters},{outputFormatFilter}");
+        }
     }
 
     public void SetOutputPitch(float pitch)
@@ -611,63 +618,44 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
         if (!Exist)
             return false;
 
-        try
-        {
-            ffmpeg.av_frame_unref(_pFrame);
-
-            ffmpeg.av_frame_unref(_pFilteredFrame);
-
-            while (true)
+        lock (_seekLock)
+            lock (_filterLock)
             {
-                int receiveResult = ffmpeg.avcodec_receive_frame(_pCodecContext, _pFrame);
-
-                if (receiveResult >= 0)
+                try
                 {
-                    int filterResult = ffmpeg.av_buffersrc_add_frame_flags(
-                        _pBufferSrcCtx,
-                        _pFrame,
-                        FFmpegFlags.AV_BUFFERSRC_FLAG_KEEP_REF | FFmpegFlags.AV_BUFFERSRC_FLAG_NO_CHECK_FORMAT
-                    );
+                    ffmpeg.av_frame_unref(_pFrame);
 
-                    if (filterResult < 0)
+                    ffmpeg.av_frame_unref(_pFilteredFrame);
+
+                    while (true)
                     {
-                        FFmpegLogger.LogErr(this, $"Add frame to filter error: {FFmpegHelper.AVStringError(filterResult)}");
-                        return false;
-                    }
+                        int receiveResult = ffmpeg.avcodec_receive_frame(_pCodecContext, _pFrame);
 
-                    filterResult = ffmpeg.av_buffersink_get_frame(_pBufferSinkCtx, _pFilteredFrame);
-
-                    if (filterResult < 0)
-                        return false;
-
-                    outFrame = *_pFilteredFrame;
-
-                    if (_pFilteredFrame->best_effort_timestamp != ffmpeg.AV_NOPTS_VALUE)
-                        _pFilteredFrame->pts = _pFilteredFrame->best_effort_timestamp;
-
-                    outFrameTimeInSeconds = _pFilteredFrame->pts * TimeBase - StartTimeInSeconds;
-
-                    _lastFrameTime = outFrameTimeInSeconds;
-
-                    outFramePitch = _outputPitch;
-
-                    outFrameSpeed = _outputSpeed;
-
-                    return true;
-                }
-                else if (receiveResult == ffmpeg.AVERROR_EOF)
-                {
-                    int filterResult = ffmpeg.av_buffersrc_add_frame_flags(_pBufferSrcCtx, null, FFmpegFlags.AV_BUFFERSRC_FLAG_PUSH);
-
-                    if (filterResult >= 0)
-                    {
-                        filterResult = ffmpeg.av_buffersink_get_frame(_pBufferSinkCtx, _pFilteredFrame);
-
-                        if (filterResult >= 0)
+                        if (receiveResult >= 0)
                         {
+                            int filterResult = ffmpeg.av_buffersrc_add_frame_flags(
+                                _pBufferSrcCtx,
+                                _pFrame,
+                                FFmpegFlags.AV_BUFFERSRC_FLAG_KEEP_REF | FFmpegFlags.AV_BUFFERSRC_FLAG_NO_CHECK_FORMAT
+                            );
+
+                            if (filterResult < 0)
+                            {
+                                FFmpegLogger.LogErr(this, $"Add frame to filter error: {FFmpegHelper.AVStringError(filterResult)}");
+                                return false;
+                            }
+
+                            filterResult = ffmpeg.av_buffersink_get_frame(_pBufferSinkCtx, _pFilteredFrame);
+
+                            if (filterResult < 0)
+                                return false;
+
                             outFrame = *_pFilteredFrame;
 
-                            outFrameTimeInSeconds = DurationInSeconds - StartTimeInSeconds;
+                            if (_pFilteredFrame->best_effort_timestamp != ffmpeg.AV_NOPTS_VALUE)
+                                _pFilteredFrame->pts = _pFilteredFrame->best_effort_timestamp;
+
+                            outFrameTimeInSeconds = _pFilteredFrame->pts * TimeBase - StartTimeInSeconds;
 
                             _lastFrameTime = outFrameTimeInSeconds;
 
@@ -677,33 +665,56 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
                             return true;
                         }
-                    }
+                        else if (receiveResult == ffmpeg.AVERROR_EOF)
+                        {
+                            int filterResult = ffmpeg.av_buffersrc_add_frame_flags(_pBufferSrcCtx, null, FFmpegFlags.AV_BUFFERSRC_FLAG_PUSH);
 
+                            if (filterResult >= 0)
+                            {
+                                filterResult = ffmpeg.av_buffersink_get_frame(_pBufferSinkCtx, _pFilteredFrame);
+
+                                if (filterResult >= 0)
+                                {
+                                    outFrame = *_pFilteredFrame;
+
+                                    outFrameTimeInSeconds = DurationInSeconds - StartTimeInSeconds;
+
+                                    _lastFrameTime = outFrameTimeInSeconds;
+
+                                    outFramePitch = _outputPitch;
+
+                                    outFrameSpeed = _outputSpeed;
+
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }
+                        else if (receiveResult == ffmpeg.AVERROR(ffmpeg.EAGAIN))
+                        {
+                            if (!_codecFlushed && !TryGetNextPacket())
+                            {
+                                _codecFlushed = true;
+                                continue;
+                            }
+                            else if (_codecFlushed)
+                                return false;
+
+                            continue;
+                        }
+
+                        FFmpegLogger.LogErr(this, $"Receiving frame error: {FFmpegHelper.AVStringError(receiveResult)}");
+
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    FFmpegLogger.LogErr(this, $"Try get next frame error: {ex.Message}");
                     return false;
                 }
-                else if (receiveResult == ffmpeg.AVERROR(ffmpeg.EAGAIN))
-                {
-                    if (!_codecFlushed && !TryGetNextPacket())
-                    {
-                        _codecFlushed = true;
-                        continue;
-                    }
-                    else if (_codecFlushed)
-                        return false;
-
-                    continue;
-                }
-
-                FFmpegLogger.LogErr(this, $"Receiving frame error: {FFmpegHelper.AVStringError(receiveResult)}");
-
-                return false;
             }
-        }
-        catch (Exception ex)
-        {
-            FFmpegLogger.LogErr(this, $"Try get next frame error: {ex.Message}");
-            return false;
-        }
     }
 
     public bool TrySeek(double timeInSeconds)
@@ -711,41 +722,44 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
         if (!Exist)
             return false;
 
-        try
+        lock (_seekLock)
         {
-            ffmpeg.avcodec_flush_buffers(_pCodecContext);
-
-            _codecFlushed = false;
-
-            var targetSec = Math.Clamp(timeInSeconds + StartTimeInSeconds, 0.0, DurationInSeconds);
-
-            long ts = (long)(targetSec / TimeBase);
-
-            var flags = ffmpeg.AVSEEK_FLAG_BACKWARD;
-
-            int seekResult = ffmpeg.av_seek_frame(_pFormatContext, _streamIndex, ts, flags);
-
-            if (seekResult < 0)
-                seekResult = ffmpeg.avformat_seek_file(_pFormatContext, _streamIndex, long.MinValue, ts, long.MaxValue, flags);
-
-            if (seekResult < 0)
+            try
             {
-                FFmpegLogger.LogErr(this, $"Seeking error: {FFmpegHelper.AVStringError(seekResult)}");
+                ffmpeg.avcodec_flush_buffers(_pCodecContext);
+
+                _codecFlushed = false;
+
+                var targetSec = Math.Clamp(timeInSeconds + StartTimeInSeconds, 0.0, DurationInSeconds);
+
+                long ts = (long)(targetSec / TimeBase);
+
+                var flags = ffmpeg.AVSEEK_FLAG_BACKWARD;
+
+                int seekResult = ffmpeg.av_seek_frame(_pFormatContext, _streamIndex, ts, flags);
+
+                if (seekResult < 0)
+                    seekResult = ffmpeg.avformat_seek_file(_pFormatContext, _streamIndex, long.MinValue, ts, long.MaxValue, flags);
+
+                if (seekResult < 0)
+                {
+                    FFmpegLogger.LogErr(this, $"Seeking error: {FFmpegHelper.AVStringError(seekResult)}");
+                    return false;
+                }
+
+                UpdateFilter();
+
+                while (TryGetNextFrame(out var frame, out var frameSec, out _, out _))
+                    if (frameSec >= timeInSeconds)
+                        break;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                FFmpegLogger.LogErr(this, $"Seeking error: {ex.Message}");
                 return false;
             }
-
-            UpdateFilter();
-
-            while (TryGetNextFrame(out var frame, out var frameSec, out _, out _))
-                if (frameSec >= timeInSeconds)
-                    break;
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            FFmpegLogger.LogErr(this, $"Seeking error: {ex.Message}");
-            return false;
         }
     }
 
@@ -804,6 +818,11 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
         catch (Exception ex)
         {
             FFmpegLogger.LogErr(this, "Disposing error: " + ex.Message);
+        }
+        finally
+        {
+            _filterLock = null;
+            _seekLock = null;
         }
     }
 }

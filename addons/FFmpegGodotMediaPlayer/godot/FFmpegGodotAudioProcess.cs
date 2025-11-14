@@ -24,6 +24,8 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
 
     public bool IsFinished { get; private set; } = false;
 
+    private GodotThread _processThread = null;
+
     private double _currentFrameTime = 0.0;
 
     public double Time
@@ -100,6 +102,17 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
         if (!PlayerValid || !IsRunning)
             return;
 
+        IsFinished = clockTime >= Duration;
+
+        if (IsFinished)
+        {
+            Stop();
+            _currentFrameTime = _duration;
+        }
+    }
+
+    private void UpdateInternal()
+    {
         while (
             IsRunning
             && _framesQueue.Count < FRAMES_QUEUE_SIZE
@@ -108,7 +121,7 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
             SendFrameToQueue(frame, frameTime, framePitch, frameSpeed);
 
         if (!_player.Playing)
-            _player.Play();
+            _player.CallDeferred("play", 0.0f);
 
         if (IsPlaybackValid(out var playback))
         {
@@ -137,14 +150,6 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
         }
 
         _currentFrameTime = _bufferedFrameTime - GetGeneratorDataLeftInSeconds() * _pitch * _speed;
-
-        IsFinished = clockTime >= Duration;
-
-        if (IsFinished)
-        {
-            Stop();
-            _currentFrameTime = _duration;
-        }
     }
 
     private void SendFrameToQueue(AVFrame frame, double time, float pitch, float speed)
@@ -178,6 +183,17 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
 
         if (PlayerValid)
             _player.StreamPaused = false;
+
+        _processThread = new();
+
+        _processThread?.Start(Callable.From(() =>
+        {
+            while (IsRunning)
+            {
+                UpdateInternal();
+                OS.DelayMsec(1);
+            }
+        }));
     }
 
     public void Stop()
@@ -189,6 +205,10 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
 
         if (PlayerValid)
             _player.StreamPaused = true;
+
+        _processThread?.WaitToFinish();
+
+        _processThread = null;
     }
 
     public double GetTime()
