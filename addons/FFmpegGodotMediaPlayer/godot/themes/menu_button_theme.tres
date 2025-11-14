@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://cyw821moyqybs"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1c684"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d264b"]
+bg_color = Color(0, 0.39215687, 0, 0.8)
+
+[resource]
+default_font_size = 20
+PopupMenu/styles/hover = SubResource("StyleBoxFlat_1c684")
+PopupMenu/styles/panel = SubResource("StyleBoxFlat_d264b")

@@ -1,0 +1,248 @@
+[gd_scene load_steps=18 format=3 uid="uid://d2c5w5moq4ktk"]
+
+[ext_resource type="Script" uid="uid://cp5oprfug1vc" path="res://addons/FFmpegGodotMediaPlayer/godot/scenes/test/FFmpegGodotMediaPlayerTest.cs" id="1_p5tp8"]
+[ext_resource type="Texture2D" uid="uid://c4nvki51pui0i" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/play.svg" id="2_1txfr"]
+[ext_resource type="Texture2D" uid="uid://bdrlhk4qmbf5r" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/pause.svg" id="3_s5nuy"]
+[ext_resource type="Texture2D" uid="uid://x24eme7vcpw8" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/fullscreen.svg" id="4_k6yls"]
+[ext_resource type="Texture2D" uid="uid://dbqwtntth6ha5" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/fullscreen_off.svg" id="5_8uaji"]
+[ext_resource type="Script" uid="uid://b53q7wagpa3v4" path="res://addons/FFmpegGodotMediaPlayer/godot/FFmpegGodotMediaPlayer.cs" id="6_qlqyu"]
+[ext_resource type="StyleBox" uid="uid://c0edsfm44aao6" path="res://addons/FFmpegGodotMediaPlayer/godot/themes/panel_container_box_flat_theme.tres" id="7_neokr"]
+[ext_resource type="Theme" uid="uid://cyw821moyqybs" path="res://addons/FFmpegGodotMediaPlayer/godot/themes/menu_button_theme.tres" id="8_b2ws8"]
+[ext_resource type="Texture2D" uid="uid://vsrl7sgaf4w8" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/stop.svg" id="9_db6q0"]
+[ext_resource type="Texture2D" uid="uid://sp0gv346qrqo" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/subtitles.svg" id="10_tqoql"]
+[ext_resource type="Texture2D" uid="uid://5afc5nkkgdpm" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/loop.svg" id="11_iebxv"]
+[ext_resource type="Texture2D" uid="uid://h20kh4u805tt" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/settings.svg" id="12_b88u1"]
+[ext_resource type="PackedScene" uid="uid://vm0vs1qtuf2h" path="res://addons/FFmpegGodotMediaPlayer/godot/scenes/windows/SettingsWindow.tscn" id="13_ut5mx"]
+
+[sub_resource type="Gradient" id="Gradient_5vw27"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_kek77"]
+gradient = SubResource("Gradient_5vw27")
+width = 16
+height = 16
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_5vw27"]
+grow_begin = 0.0
+grow_end = 0.0
+thickness = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kek77"]
+bg_color = Color(1, 1, 1, 1)
+
+[node name="FFmpegGodotMediaPlayerTest" type="Control" node_paths=PackedStringArray("_videoPlayer", "_debugLabel", "_timeLabel", "lengthLabel", "_timeSlider", "_playbackButton", "_stopButton", "_loopButton", "_controllerButton", "_fullScreenButton", "_openFileDialog", "_settingsWindow", "_ui", "_fileMenuButton")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_p5tp8")
+_videoPlayer = NodePath("BackgroundRect/FFmpegGodotMediaPlayer")
+_debugLabel = NodePath("UI/Gap/DebugLabel")
+_timeLabel = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/TimeLabel")
+lengthLabel = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/LengthLabel")
+_timeSlider = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/TimeHSlider")
+_playbackButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/PlaybackButton")
+_playIcon = ExtResource("2_1txfr")
+_pauseIcon = ExtResource("3_s5nuy")
+_stopButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/StopButton")
+_loopButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/LoopButton")
+_controllerButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/ControllerButton")
+_fullScreenButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/FullScreenButton")
+_fullScreenOnIcon = ExtResource("4_k6yls")
+_fullScreenOffIcon = ExtResource("5_8uaji")
+_openFileDialog = NodePath("FileDialog")
+_settingsWindow = NodePath("SettingsWindow")
+_ui = NodePath("UI")
+_fileMenuButton = NodePath("UI/MenuContainer/HBoxContainer/MenuButton")
+
+[node name="BackgroundRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+color = Color(0, 0, 0, 1)
+
+[node name="FFmpegGodotMediaPlayer" type="Control" parent="BackgroundRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("6_qlqyu")
+metadata/_custom_type_script = "uid://b53q7wagpa3v4"
+
+[node name="UI" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="MenuContainer" type="PanelContainer" parent="UI"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("7_neokr")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/MenuContainer"]
+layout_mode = 2
+
+[node name="MenuButton" type="MenuButton" parent="UI/MenuContainer/HBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme = ExtResource("8_b2ws8")
+text = "File"
+item_count = 3
+popup/item_0/text = "Open"
+popup/item_0/id = 0
+popup/item_1/text = "Close"
+popup/item_1/id = 1
+popup/item_2/text = "Exit"
+popup/item_2/id = 2
+
+[node name="Gap" type="Control" parent="UI"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DebugLabel" type="Label" parent="UI/Gap"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 20
+
+[node name="ControlContainer" type="PanelContainer" parent="UI"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("7_neokr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/ControlContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/ControlContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/ControlContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="TimeLabel" type="Label" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "00:00:000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimeHSlider" type="HSlider" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme_override_constants/center_grabber = 1
+theme_override_icons/grabber = SubResource("GradientTexture2D_kek77")
+theme_override_icons/grabber_highlight = SubResource("GradientTexture2D_kek77")
+theme_override_styles/slider = SubResource("StyleBoxLine_5vw27")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_kek77")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_kek77")
+max_value = 0.0
+step = 0.0
+
+[node name="LengthLabel" type="Label" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "00:00:000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlaybackButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Play/Pause"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("2_1txfr")
+icon_alignment = 1
+expand_icon = true
+
+[node name="StopButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Stop"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("9_db6q0")
+expand_icon = true
+
+[node name="SubtitleButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Subtitle (Unavaiable right now)"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+disabled = true
+toggle_mode = true
+icon = ExtResource("10_tqoql")
+expand_icon = true
+
+[node name="LoopButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Loop"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+toggle_mode = true
+icon = ExtResource("11_iebxv")
+expand_icon = true
+
+[node name="ControllerButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Playback settings"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("12_b88u1")
+expand_icon = true
+
+[node name="FullScreenButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Fullscreen"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("4_k6yls")
+expand_icon = true
+
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Open a File"
+initial_position = 1
+size = Vector2i(1280, 720)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+use_native_dialog = true
+
+[node name="SettingsWindow" parent="." instance=ExtResource("13_ut5mx")]
+visible = false

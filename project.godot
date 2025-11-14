@@ -1,0 +1,54 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="FFmpeg Godot Media Player"
+config/description="A Plugin to playing media files using FFmpeg for Godot Engine using C#."
+config/version="1.0"
+run/main_scene="uid://d2c5w5moq4ktk"
+config/features=PackedStringArray("4.5", "C#", "Forward Plus")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/image="uid://br3x77gnlokfr"
+config/icon="uid://ddiym4myxm6ge"
+
+[autoload]
+
+FFmpegGodotAutoLoad="*res://addons/FFmpegGodotMediaPlayer/godot/FFmpegGodotAutoLoad.cs"
+
+[debug]
+
+file_logging/enable_file_logging=true
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[dotnet]
+
+project/assembly_name="FFmpegGodotMediaPlayer"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/FFmpegGodotMediaPlayer/godot/plugin.cfg")
+
+[network]
+
+limits/debugger/max_chars_per_second=2147483647
+limits/debugger/max_queued_messages=2147483647
+limits/debugger/max_errors_per_second=2147483647
+limits/debugger/max_warnings_per_second=2147483647
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
