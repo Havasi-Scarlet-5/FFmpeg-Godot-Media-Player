@@ -1,0 +1,406 @@
+[gd_scene load_steps=9 format=3 uid="uid://vm0vs1qtuf2h"]
+
+[ext_resource type="Script" uid="uid://oyfx13usufvk" path="res://addons/FFmpegGodotMediaPlayer/godot/scenes/windows/SettingsWindow.cs" id="1_0thpb"]
+[ext_resource type="StyleBox" uid="uid://cq7k4xpsxic0w" path="res://addons/FFmpegGodotMediaPlayer/godot/themes/window_border_theme.tres" id="1_j43wq"]
+[ext_resource type="Texture2D" uid="uid://dsude0dcmwjeu" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/volume.svg" id="3_e603w"]
+[ext_resource type="Texture2D" uid="uid://bvfs4lbuc3kb7" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/volume_mute.svg" id="4_ji7ip"]
+[ext_resource type="Theme" uid="uid://dekebc65nqls7" path="res://addons/FFmpegGodotMediaPlayer/godot/themes/slider_theme.tres" id="4_nvepn"]
+[ext_resource type="Texture2D" uid="uid://dtfcbqwas5kb3" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/speed.svg" id="4_ym02r"]
+[ext_resource type="Texture2D" uid="uid://s5s32xnvprx6" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/reset.svg" id="6_l2yid"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qedhk"]
+
+[node name="SettingsWindow" type="Window" node_paths=PackedStringArray("_disableVideoCheckBox", "_canSkipFramesCheckBox", "_seekAsyncCheckBox", "_stetchCheckBox", "_colorPicker", "_hueLabel", "_hueSlider", "_hueResetButton", "_saturationLabel", "_saturationSlider", "_saturationResetButton", "_lightnessLabel", "_lightnessSlider", "_lightnessResetButton", "_contrastLabel", "_contrastSlider", "_contrastResetButton", "_disableAudioCheckBox", "_bufferLengthLabel", "_bufferLengthSlider", "_pitchLabel", "_pitchSlider", "_volumeLabel", "_volumeIcon", "_volumeMuteButton", "_volumeSlider", "_speedLabel", "_speedSlider")]
+transparent_bg = true
+oversampling_override = 1.0
+title = "Settings"
+initial_position = 4
+size = Vector2i(340, 240)
+theme_override_styles/embedded_border = ExtResource("1_j43wq")
+theme_override_styles/embedded_unfocused_border = ExtResource("1_j43wq")
+script = ExtResource("1_0thpb")
+_disableVideoCheckBox = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/DisableVideoCheckBox")
+_canSkipFramesCheckBox = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/CanSkipFramesCheckBox")
+_seekAsyncCheckBox = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/SeekAsyncCheckBox")
+_stetchCheckBox = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/StretchCheckBox")
+_colorPicker = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ColorPicker")
+_hueLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/HueLabel")
+_hueSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/HueHBoxContainer/HueSlider")
+_hueResetButton = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/HueHBoxContainer/HueResetButton")
+_saturationLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/SaturationLabel")
+_saturationSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/SaturationHBoxContainer/SaturationSlider")
+_saturationResetButton = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/SaturationHBoxContainer/SaturationResetButton")
+_lightnessLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/LightnessLabel")
+_lightnessSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/LightnessHBoxContainer/LightnessSlider")
+_lightnessResetButton = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/LightnessHBoxContainer/LightnessResetButton")
+_contrastLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ContrastLabel")
+_contrastSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ContrastHBoxContainer/ContrastSlider")
+_contrastResetButton = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ContrastHBoxContainer/ContrastResetButton")
+_disableAudioCheckBox = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/DisableAudioCheckBox")
+_bufferLengthLabel = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/BufferLengthLabel")
+_bufferLengthSlider = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/BufferLengthHBoxContainer/BufferLengthSlider")
+_pitchLabel = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/PitchLabel")
+_pitchSlider = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/PitchHBoxContainer/PitchSlider")
+_volumeLabel = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/VolumeLabel")
+_volumeIcon = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/VolumeHBoxContainer/VolumeIcon")
+_volumeNormalIcon = ExtResource("3_e603w")
+_volumeMuteIcon = ExtResource("4_ji7ip")
+_volumeMuteButton = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/VolumeHBoxContainer/VolumeIcon/VolumeMuteButton")
+_volumeSlider = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/VolumeHBoxContainer/VolumeSlider")
+_speedLabel = NodePath("TabContainer/Playback/MarginContainer/VBoxContainer/SpeedLabel")
+_speedSlider = NodePath("TabContainer/Playback/MarginContainer/VBoxContainer/SpeedHBoxContainer/SpeedSlider")
+
+[node name="TabContainer" type="TabContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_qedhk")
+tab_alignment = 1
+current_tab = 0
+tabs_position = 1
+
+[node name="Video" type="ScrollContainer" parent="TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+metadata/_tab_index = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="TabContainer/Video"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Video/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DisableVideoCheckBox" type="CheckBox" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 20
+text = "Disable"
+
+[node name="CanSkipFramesCheckBox" type="CheckBox" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 20
+button_pressed = true
+text = "Can skip frames"
+
+[node name="SeekAsyncCheckBox" type="CheckBox" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 20
+button_pressed = true
+text = "Seek Async"
+
+[node name="StretchCheckBox" type="CheckBox" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 20
+text = "Stretch"
+
+[node name="ColorLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Color"
+vertical_alignment = 1
+
+[node name="ColorPicker" type="ColorPicker" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
+[node name="HueLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Hue: 0"
+vertical_alignment = 1
+
+[node name="HueHBoxContainer" type="HBoxContainer" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HueSlider" type="HSlider" parent="TabContainer/Video/MarginContainer/VBoxContainer/HueHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+max_value = 360.0
+rounded = true
+scrollable = false
+
+[node name="HueResetButton" type="Button" parent="TabContainer/Video/MarginContainer/VBoxContainer/HueHBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("6_l2yid")
+flat = true
+expand_icon = true
+
+[node name="SaturationLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Saturation: 100"
+vertical_alignment = 1
+
+[node name="SaturationHBoxContainer" type="HBoxContainer" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SaturationSlider" type="HSlider" parent="TabContainer/Video/MarginContainer/VBoxContainer/SaturationHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+max_value = 200.0
+value = 100.0
+rounded = true
+scrollable = false
+
+[node name="SaturationResetButton" type="Button" parent="TabContainer/Video/MarginContainer/VBoxContainer/SaturationHBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("6_l2yid")
+flat = true
+expand_icon = true
+
+[node name="LightnessLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Lightness: 50"
+vertical_alignment = 1
+
+[node name="LightnessHBoxContainer" type="HBoxContainer" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="LightnessSlider" type="HSlider" parent="TabContainer/Video/MarginContainer/VBoxContainer/LightnessHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+value = 50.0
+rounded = true
+scrollable = false
+
+[node name="LightnessResetButton" type="Button" parent="TabContainer/Video/MarginContainer/VBoxContainer/LightnessHBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("6_l2yid")
+flat = true
+expand_icon = true
+
+[node name="ContrastLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Contrast: 0"
+vertical_alignment = 1
+
+[node name="ContrastHBoxContainer" type="HBoxContainer" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ContrastSlider" type="HSlider" parent="TabContainer/Video/MarginContainer/VBoxContainer/ContrastHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+min_value = -100.0
+rounded = true
+scrollable = false
+
+[node name="ContrastResetButton" type="Button" parent="TabContainer/Video/MarginContainer/VBoxContainer/ContrastHBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+icon = ExtResource("6_l2yid")
+flat = true
+expand_icon = true
+
+[node name="Audio" type="ScrollContainer" parent="TabContainer"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+metadata/_tab_index = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="TabContainer/Audio"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Audio/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DisableAudioCheckBox" type="CheckBox" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 20
+text = "Disable"
+
+[node name="BufferLengthLabel" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Buffer Length: 100ms"
+vertical_alignment = 1
+
+[node name="BufferLengthHBoxContainer" type="HBoxContainer" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BufferLengthSlider" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/BufferLengthHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+min_value = 10.0
+max_value = 1000.0
+step = 10.0
+value = 100.0
+rounded = true
+scrollable = false
+
+[node name="PitchLabel" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Pitch: 1.00"
+vertical_alignment = 1
+
+[node name="PitchHBoxContainer" type="HBoxContainer" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PitchSlider" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/PitchHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+min_value = 0.25
+max_value = 2.0
+step = 0.05
+value = 1.0
+scrollable = false
+
+[node name="VolumeLabel" type="Label" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Volume: 100"
+vertical_alignment = 1
+
+[node name="VolumeHBoxContainer" type="HBoxContainer" parent="TabContainer/Audio/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VolumeIcon" type="TextureRect" parent="TabContainer/Audio/MarginContainer/VBoxContainer/VolumeHBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("3_e603w")
+expand_mode = 1
+
+[node name="VolumeMuteButton" type="Button" parent="TabContainer/Audio/MarginContainer/VBoxContainer/VolumeHBoxContainer/VolumeIcon"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+
+[node name="VolumeSlider" type="HSlider" parent="TabContainer/Audio/MarginContainer/VBoxContainer/VolumeHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+value = 100.0
+rounded = true
+scrollable = false
+
+[node name="Playback" type="ScrollContainer" parent="TabContainer"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+metadata/_tab_index = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="TabContainer/Playback"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Playback/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SpeedLabel" type="Label" parent="TabContainer/Playback/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Speed: 1.00x"
+vertical_alignment = 1
+
+[node name="SpeedHBoxContainer" type="HBoxContainer" parent="TabContainer/Playback/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SpeedIcon" type="TextureRect" parent="TabContainer/Playback/MarginContainer/VBoxContainer/SpeedHBoxContainer"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("4_ym02r")
+expand_mode = 1
+
+[node name="SpeedSlider" type="HSlider" parent="TabContainer/Playback/MarginContainer/VBoxContainer/SpeedHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+min_value = 0.25
+max_value = 2.0
+step = 0.05
+value = 1.0
+scrollable = false
