@@ -87,6 +87,38 @@ public sealed unsafe partial class FFmpegGodotVideoProcess : RefCounted
         set => SetContrast(value);
     }
 
+    private bool _chromakeyEnable = false;
+
+    public bool ChromaKeyEnable
+    {
+        get => GetChromaEnable();
+        set => SetChromaKeyEnable(value);
+    }
+
+    private Color _chromakeyColor = Colors.Green;
+
+    public Color ChromaKeyColor
+    {
+        get => GetChromaKeyColor();
+        set => SetChromaKeyColor(value);
+    }
+
+    private float _chromaKeyThreshold = 0.4f;
+
+    public float ChromaKeyThreshold
+    {
+        get => GetChromaKeyThreshold();
+        set => SetChromaKeyThreshold(value);
+    }
+
+    private float _chromaKeySmoothness = 0.1f;
+
+    public float ChromaKeySmoothness
+    {
+        get => GetChromaKeySmoothness();
+        set => SetChromaKeySmoothness(value);
+    }
+
     private Task<bool> _seekTaskResult = Task.FromResult(true);
 
     public FFmpegGodotVideoProcess(FFmpegVideoDecoder decoder, TextureRect texture)
@@ -260,6 +292,50 @@ public sealed unsafe partial class FFmpegGodotVideoProcess : RefCounted
     {
         _contrast = contrast;
         _render?.SetContrast(_contrast);
+    }
+
+    public bool GetChromaEnable()
+    {
+        return _chromakeyEnable;
+    }
+
+    public void SetChromaKeyEnable(bool enable)
+    {
+        _chromakeyEnable = enable;
+        _render?.SetChromaKeyEnable(enable);
+    }
+
+    public Color GetChromaKeyColor()
+    {
+        return _chromakeyColor;
+    }
+
+    public void SetChromaKeyColor(Color color)
+    {
+        _chromakeyColor = color;
+        _render?.SetChromaKeyColor(color);
+    }
+
+    public float GetChromaKeyThreshold()
+    {
+        return _chromaKeyThreshold;
+    }
+
+    public void SetChromaKeyThreshold(float threshold)
+    {
+        _chromaKeyThreshold = threshold;
+        _render?.SetChromaKeyThreshold(threshold);
+    }
+
+    public float GetChromaKeySmoothness()
+    {
+        return _chromaKeyThreshold;
+    }
+
+    public void SetChromaKeySmoothness(float smoothness)
+    {
+        _chromaKeySmoothness = smoothness;
+        _render?.SetChromaKeySmoothness(smoothness);
     }
 
     private void UpdateVideoFrame(AVFrame frame)

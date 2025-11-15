@@ -6,7 +6,7 @@ namespace FFmpegMediaPlayer;
 
 internal static unsafe class FFmpegHelper
 {
-    public static unsafe string AVStringError(int error)
+    public static string AVStringError(int error)
     {
         var bufferSize = ffmpeg.AV_ERROR_MAX_STRING_SIZE;
 
@@ -19,7 +19,7 @@ internal static unsafe class FFmpegHelper
         return message;
     }
 
-    public static unsafe string GetChannelLayoutString(AVChannelLayout* chLayout)
+    public static string GetChannelLayoutString(AVChannelLayout* chLayout)
     {
         var buffer = new byte[64];
 

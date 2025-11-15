@@ -22,6 +22,14 @@ public abstract partial class FFmpegGodotVideoRenderTextureShader : RefCounted
 
     public abstract void SetTintColor(Color value);
 
+    public abstract void SetChromaKeyEnable(bool value);
+
+    public abstract void SetChromaKeyColor(Color value);
+
+    public abstract void SetChromaKeyThreshold(float value);
+
+    public abstract void SetChromaKeySmoothness(float value);
+
     private protected static float[,] GetColorSpaceMatrix(AVColorSpace colorSpace)
     {
         return colorSpace switch
@@ -109,6 +117,26 @@ public partial class FFmpegGodotVideoRenderTextureShaderYUV : FFmpegGodotVideoRe
     public override void SetTintColor(Color value)
     {
         _shaderMaterial?.SetShaderParameter("tint_color", value);
+    }
+
+    public override void SetChromaKeyEnable(bool value)
+    {
+        _shaderMaterial?.SetShaderParameter("chroma_key_enable", value);
+    }
+
+    public override void SetChromaKeyColor(Color value)
+    {
+        _shaderMaterial?.SetShaderParameter("chroma_key_color", value);
+    }
+
+    public override void SetChromaKeyThreshold(float value)
+    {
+        _shaderMaterial?.SetShaderParameter("chroma_key_threshold", value);
+    }
+
+    public override void SetChromaKeySmoothness(float value)
+    {
+        _shaderMaterial?.SetShaderParameter("chroma_key_smoothness", value);
     }
 
     private ImageTexture _yTexture = null;

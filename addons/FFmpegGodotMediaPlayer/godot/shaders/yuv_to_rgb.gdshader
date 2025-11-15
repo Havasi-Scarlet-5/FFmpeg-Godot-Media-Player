@@ -23,6 +23,15 @@ uniform vec4 tint_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 // Padding
 uniform vec2 texture_scale = vec2(1.0, 1.0); // = vec2(width / stride, 1.0)
 
+// Chroma key settings
+uniform bool chroma_key_enable = false;
+
+uniform vec3 chroma_key_color : source_color = vec3(0.0, 1.0, 0.0); // Default green
+
+uniform float chroma_key_threshold : hint_range(0.0, 1.0, 0.01) = 0.4;
+
+uniform float chroma_key_smoothness : hint_range(0.0, 1.0, 0.01) = 0.1;
+
 const float EPSILON = 0.00001;
 
 // Helper: convert RGB to HSV
@@ -92,6 +101,18 @@ vec3 hsv2rgb(vec3 c)
     return vec3(v, p, q);
 }
 
+// Calculate chroma key alpha based on color distance
+float calculate_chroma_alpha(vec3 rgb, vec3 key_col, float threshold, float smoothness)
+{
+    // Calculate color distance
+    float dist = distance(rgb, key_col);
+    
+    // Smoothstep for smooth edges
+    float alpha = smoothstep(threshold - smoothness, threshold + smoothness, dist);
+    
+    return alpha;
+}
+
 void fragment() 
 {
     vec2 uv = UV;
@@ -154,5 +175,14 @@ void fragment()
     // Final clamp
     rgb = clamp(rgb, 0.0, 1.0);
 
-    COLOR = vec4(rgb, tint_color.a);
+    // Calculate chroma key alpha
+    float alpha = tint_color.a;
+
+    if (chroma_key_enable)
+    {
+        float chroma_alpha = calculate_chroma_alpha(rgb, chroma_key_color, chroma_key_threshold, chroma_key_smoothness);
+        alpha *= chroma_alpha;
+    }
+
+    COLOR = vec4(rgb, alpha);
 }

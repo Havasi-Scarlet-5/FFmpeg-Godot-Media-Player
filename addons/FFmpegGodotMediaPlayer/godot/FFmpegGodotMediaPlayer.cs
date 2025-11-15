@@ -129,6 +129,66 @@ public partial class FFmpegGodotMediaPlayer : Control
         }
     }
 
+    [ExportSubgroup("Chroma Key")]
+
+    private bool _chromakeyEnable = false;
+
+    [Export]
+    public bool ChromaKeyEnable
+    {
+        get => _chromakeyEnable;
+        set
+        {
+            _chromakeyEnable = value;
+            VideoProcess?.SetChromaKeyEnable(_chromakeyEnable);
+        }
+    }
+
+    private Color _chromaKeyColor = Colors.Green;
+
+    [Export]
+    public Color ChromaKeyColor
+    {
+        get => _chromaKeyColor;
+        set
+        {
+            _chromaKeyColor = value;
+            VideoProcess?.SetChromaKeyColor(_chromaKeyColor);
+        }
+    }
+
+    private float _chromaKeyThreshold = 0.4f;
+
+    [Export(PropertyHint.Range, "0,1,0.01")]
+    public float ChromaKeyThreshold
+    {
+        get => _chromaKeyThreshold;
+        set
+        {
+            var v = Mathf.Clamp(Mathf.Snapped(value, 0.01f), 0.0f, 1.0f);
+
+            _chromaKeyThreshold = v;
+
+            VideoProcess?.SetChromaKeyThreshold(_chromaKeyThreshold);
+        }
+    }
+
+    private float _chromaKeySmoothness = 0.1f;
+
+    [Export(PropertyHint.Range, "0,1,0.01")]
+    public float ChromaKeySmoothness
+    {
+        get => _chromaKeySmoothness;
+        set
+        {
+            var v = Mathf.Clamp(Mathf.Snapped(value, 0.01f), 0.0f, 1.0f);
+
+            _chromaKeySmoothness = v;
+
+            VideoProcess?.SetChromaKeySmoothness(_chromaKeySmoothness);
+        }
+    }
+
     [ExportCategory("Audio")]
 
     [Export]
@@ -296,14 +356,12 @@ public partial class FFmpegGodotMediaPlayer : Control
             {
                 Texture = new ImageTexture(),
                 ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                StretchMode = _stretchMode,
-                AnchorRight = (float)Anchor.End,
-                AnchorBottom = (float)Anchor.End
+                StretchMode = _stretchMode
             };
 
             AddChild(TextureRect, true, InternalMode.Back);
 
-            TextureRect.SetAnchorsPreset(LayoutPreset.FullRect);
+            TextureRect.SetAnchorsPreset(LayoutPreset.FullRect, true);
 
             TextureRect.Hide();
         }
@@ -419,6 +477,14 @@ public partial class FFmpegGodotMediaPlayer : Control
         VideoProcess?.SetLightness(_lightness);
 
         VideoProcess?.SetContrast(_contrast);
+
+        VideoProcess?.SetChromaKeyEnable(_chromakeyEnable);
+
+        VideoProcess?.SetChromaKeyColor(_chromaKeyColor);
+
+        VideoProcess?.SetChromaKeyThreshold(_chromaKeyThreshold);
+
+        VideoProcess?.SetChromaKeySmoothness(_chromaKeySmoothness);
 
         if (!DisableAudio)
         {
