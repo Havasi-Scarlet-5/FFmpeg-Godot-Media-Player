@@ -78,7 +78,6 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("6_qlqyu")
-AutoPlay = true
 metadata/_custom_type_script = "uid://b53q7wagpa3v4"
 
 [node name="UI" type="VBoxContainer" parent="."]

@@ -12,16 +12,26 @@ internal static class FFmpegBinariesHelper
 
         var probe = string.Empty;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        var arch = RuntimeInformation.ProcessArchitecture;
+
+        var isX64 = arch == Architecture.X64;
+
+        var extension = string.Empty;
+
+        if (OperatingSystem.IsWindows() && isX64)
         {
+            extension = ".dll";
+
 #if GODOT
             probe = "addons/FFmpegGodotMediaPlayer/libs/win-x64";
 #else
 
 #endif
         }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        else if (OperatingSystem.IsLinux() && isX64)
         {
+            extension = ".so";
+
 #if GODOT
             probe = "addons/FFmpegGodotMediaPlayer/libs/linux-x64";
 #else
@@ -34,9 +44,9 @@ internal static class FFmpegBinariesHelper
             return;
         }
 
-        if (current != null && probe != string.Empty)
+        if (current != null)
         {
-            var ffmpegBinaryPath = Path.Combine(current, probe);
+            var ffmpegBinaryPath = probe != string.Empty ? Path.Combine(current, probe) : current;
 
             if (Directory.Exists(ffmpegBinaryPath))
             {
@@ -44,7 +54,11 @@ internal static class FFmpegBinariesHelper
 
                 foreach (var file in Directory.EnumerateFiles(ffmpegBinaryPath))
                 {
-                    if (NativeLibrary.TryLoad(file, out _))
+                    if (
+                        extension != string.Empty
+                        && file.Contains(extension, StringComparison.OrdinalIgnoreCase)
+                        && NativeLibrary.TryLoad(file, out _)
+                    )
                         FFmpegLogger.Log(typeof(FFmpegBinariesHelper), Path.GetFileName(file), " loaded");
                 }
             }
