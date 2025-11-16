@@ -62,6 +62,8 @@ public sealed unsafe class FFmpegVideoDecoder : IDisposable
 
     public Action<AVFrame> SeekCompleted = null;
 
+    private bool _disposed = false;
+
     public FFmpegVideoDecoder(FFmpegMediaSource source)
     {
         try
@@ -608,6 +610,11 @@ public sealed unsafe class FFmpegVideoDecoder : IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
         try
         {
             // Clean up, or we will fucking crash ?

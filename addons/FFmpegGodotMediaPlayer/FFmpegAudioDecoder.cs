@@ -71,6 +71,8 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
     private object _filterLock = new();
 
+    private bool _disposed = false;
+
     public FFmpegAudioDecoder(FFmpegMediaSource source)
     {
         try
@@ -740,6 +742,11 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
         try
         {
             if (_pFilteredFrame != null)
