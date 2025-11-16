@@ -413,7 +413,11 @@ public partial class FFmpegGodotMediaPlayer : Control
 
         AudioProcess?.Update(_clockTime);
 
-        IsFinished = IsVideoValid ? VideoProcess.IsFinished : IsAudioValid && AudioProcess.IsFinished;
+        var videoFinished = !IsVideoValid || VideoProcess.IsFinished;
+
+        var audioFinished = !IsAudioValid || AudioProcess.IsFinished;
+
+        IsFinished = videoFinished && audioFinished;
 
         if (IsFinished)
         {
@@ -589,12 +593,15 @@ public partial class FFmpegGodotMediaPlayer : Control
 
         time = Mathf.Clamp(time, 0.0, Length);
 
-        VideoProcess?.SetTime(time, SeekAsync);
+        var seekToTheEnd = time >= Length;
 
-        AudioProcess?.SetTime(time);
+        VideoProcess?.SetTime(seekToTheEnd ? VideoProcess?.Duration ?? 0.0 : time, SeekAsync);
 
-        _clockTime = time;
+        AudioProcess?.SetTime(seekToTheEnd ? AudioProcess?.Duration ?? 0.0 : time);
 
-        _lastAudioTime = time;
+        _clockTime = _lastAudioTime = seekToTheEnd ? Mathf.Max(
+            VideoProcess?.Duration ?? 0.0,
+            AudioProcess?.Duration ?? 0.0
+        ) : time;
     }
 }

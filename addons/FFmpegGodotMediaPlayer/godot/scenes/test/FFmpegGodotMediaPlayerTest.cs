@@ -205,13 +205,17 @@ partial class FFmpegGodotMediaPlayerTest : Control
 
         var videoTime = _videoPlayer.VideoProcess?.Time ?? 0.0;
 
+        var videoLength = _videoPlayer.VideoProcess?.Duration ?? 0.0;
+
         var audioTime = _videoPlayer.AudioProcess?.Time ?? 0.0;
+
+        var audioLength = _videoPlayer.AudioProcess?.Duration ?? 0.0;
 
         var difference = (_videoPlayer.IsVideoValid && _videoPlayer.IsAudioValid) ? (videoTime - audioTime) : 0.0;
 
         _debugLabel.Text =
-            $"Video Time: {videoTime:F3}"
-            + $"\nAudio Time: {audioTime:F3}"
+            $"Video Time | Length: {videoTime:F3} | {videoLength:F3}"
+            + $"\nAudio Time | Length: {audioTime:F3} | {audioLength:F3}"
             + $"\n(Video {(difference == 0.0 ? "=" : difference > 0 ? ">" : "<")} Audio): {Mathf.Abs(difference):F3}"
             + $"\nPlaying: {_videoPlayer.IsPlaying}"
             + $"\nFinished: {_videoPlayer.IsFinished}"
