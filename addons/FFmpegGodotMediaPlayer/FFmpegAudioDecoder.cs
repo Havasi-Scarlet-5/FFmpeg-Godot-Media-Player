@@ -459,23 +459,13 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
         }
     }
 
-    private string GetPitchFilters(float pitch)
+    private static string GetOutputPitchFilters(int sampleRate, float pitch)
     {
-        List<string> filters = [];
-
-        if (Math.Abs(pitch - 1.0f) > 0.0f)
-        {
-            int newRate = (int)(SampleRate * pitch);
-
-            filters.Add($"asetrate={newRate}");
-
-            filters.Add($"aresample={SampleRate}");
-        }
-
-        return string.Join(",", filters);
+        int newRate = (int)(sampleRate * pitch);
+        return $"asetrate={newRate},aresample={sampleRate}";
     }
 
-    private static string GetSpeedFilters(float speed)
+    private static string GetOutputSpeedFilters(float speed)
     {
         List<string> filters = [];
 
@@ -489,31 +479,18 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
         while (remaining > 2.0f)
         {
-            filters.Add("atempo=2.0");
+            filters.Add("atempo=2");
             remaining /= 2.0f;
         }
 
-        if (Math.Abs(remaining - 1.0f) > 0.0f)
-            filters.Add($"atempo={remaining.ToString(CultureInfo.InvariantCulture)}");
+        filters.Add($"atempo={remaining.ToString(CultureInfo.InvariantCulture)}");
 
         return string.Join(",", filters);
     }
 
-    private string GetFilters(float pitch, float speed)
+    private static string GetOutputFormatFilters()
     {
-        List<string> filters = [];
-
-        string pitchFilters = GetPitchFilters(pitch);
-
-        if (!string.IsNullOrEmpty(pitchFilters))
-            filters.Add(pitchFilters);
-
-        string speedFilters = GetSpeedFilters(speed);
-
-        if (!string.IsNullOrEmpty(speedFilters))
-            filters.Add(GetSpeedFilters(speed));
-
-        return filters.Count > 0 ? string.Join(",", filters) : "anull";
+        return $"aformat=sample_fmts=flt:channel_layouts=stereo";
     }
 
     private void UpdateFilter()
@@ -524,11 +501,9 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
             DisposeFilter();
 
-            string outputFormatFilter = $"aformat=sample_fmts=flt:channel_layouts=stereo";
+            string filters = $"{GetOutputPitchFilters(SampleRate, _outputPitch)},{GetOutputSpeedFilters(_outputSpeed)},{GetOutputFormatFilters()}";
 
-            string filters = GetFilters(_outputPitch, _outputSpeed);
-
-            InitFilter($"{filters},{outputFormatFilter}");
+            InitFilter(filters);
         }
     }
 
