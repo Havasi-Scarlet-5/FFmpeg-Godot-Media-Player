@@ -10,7 +10,7 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qedhk"]
 
-[node name="SettingsWindow" type="Window" node_paths=PackedStringArray("_disableVideoCheckBox", "_canSkipFramesCheckBox", "_seekAsyncCheckBox", "_stetchCheckBox", "_colorPicker", "_hueLabel", "_hueSlider", "_hueResetButton", "_saturationLabel", "_saturationSlider", "_saturationResetButton", "_lightnessLabel", "_lightnessSlider", "_lightnessResetButton", "_contrastLabel", "_contrastSlider", "_contrastResetButton", "_disableAudioCheckBox", "_bufferLengthLabel", "_bufferLengthSlider", "_pitchLabel", "_pitchSlider", "_volumeLabel", "_volumeIcon", "_volumeMuteButton", "_volumeSlider", "_speedLabel", "_speedSlider")]
+[node name="SettingsWindow" type="Window" node_paths=PackedStringArray("_disableVideoCheckBox", "_canSkipFramesCheckBox", "_seekAsyncCheckBox", "_stetchCheckBox", "_colorPicker", "_hueLabel", "_hueSlider", "_hueResetButton", "_saturationLabel", "_saturationSlider", "_saturationResetButton", "_lightnessLabel", "_lightnessSlider", "_lightnessResetButton", "_contrastLabel", "_contrastSlider", "_contrastResetButton", "_chromaKeyEnableCheckBox", "_chromaKeyColorPicker", "_chromaKeyThresholdLabel", "_chromaKeyThresholdSlider", "_chromaKeySmoothnessLabel", "_chromaKeySmoothnessSlider", "_disableAudioCheckBox", "_bufferLengthLabel", "_bufferLengthSlider", "_pitchLabel", "_pitchSlider", "_volumeLabel", "_volumeIcon", "_volumeMuteButton", "_volumeSlider", "_speedLabel", "_speedSlider")]
 transparent_bg = true
 oversampling_override = 1.0
 title = "Settings"
@@ -36,6 +36,12 @@ _lightnessResetButton = NodePath("TabContainer/Video/MarginContainer/VBoxContain
 _contrastLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ContrastLabel")
 _contrastSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ContrastHBoxContainer/ContrastSlider")
 _contrastResetButton = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ContrastHBoxContainer/ContrastResetButton")
+_chromaKeyEnableCheckBox = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeyEnableCheckBox")
+_chromaKeyColorPicker = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeyColorPicker")
+_chromaKeyThresholdLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeyThresholdLabel")
+_chromaKeyThresholdSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeyThresholdHBoxContainer/ChromaKeyThresholdSlider")
+_chromaKeySmoothnessLabel = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeySmoothnessLabel")
+_chromaKeySmoothnessSlider = NodePath("TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeySmoothnessHBoxContainer/ChromaKeySmoothnessSlider")
 _disableAudioCheckBox = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/DisableAudioCheckBox")
 _bufferLengthLabel = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/BufferLengthLabel")
 _bufferLengthSlider = NodePath("TabContainer/Audio/MarginContainer/VBoxContainer/BufferLengthHBoxContainer/BufferLengthSlider")
@@ -95,7 +101,7 @@ focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 20
 button_pressed = true
-text = "Can skip frames"
+text = "Can Skip Frames"
 
 [node name="SeekAsyncCheckBox" type="CheckBox" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -243,6 +249,68 @@ mouse_default_cursor_shape = 2
 icon = ExtResource("6_l2yid")
 flat = true
 expand_icon = true
+
+[node name="ChromaKeyEnableCheckBox" type="CheckBox" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 20
+text = "Chroma Key Enable"
+
+[node name="ChromaKeyColorLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Chroma Key Color"
+vertical_alignment = 1
+
+[node name="ChromaKeyColorPicker" type="ColorPicker" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
+[node name="ChromaKeyThresholdLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Chroma Key Threshold: 0.40"
+vertical_alignment = 1
+
+[node name="ChromaKeyThresholdHBoxContainer" type="HBoxContainer" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ChromaKeyThresholdSlider" type="HSlider" parent="TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeyThresholdHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+max_value = 1.0
+step = 0.01
+value = 0.4
+scrollable = false
+
+[node name="ChromaKeySmoothnessLabel" type="Label" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Chroma Key Smoothness: 0.10"
+vertical_alignment = 1
+
+[node name="ChromaKeySmoothnessHBoxContainer" type="HBoxContainer" parent="TabContainer/Video/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ChromaKeySmoothnessSlider" type="HSlider" parent="TabContainer/Video/MarginContainer/VBoxContainer/ChromaKeySmoothnessHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+focus_mode = 0
+mouse_default_cursor_shape = 10
+theme = ExtResource("4_nvepn")
+max_value = 1.0
+step = 0.01
+value = 0.1
+scrollable = false
 
 [node name="Audio" type="ScrollContainer" parent="TabContainer"]
 visible = false

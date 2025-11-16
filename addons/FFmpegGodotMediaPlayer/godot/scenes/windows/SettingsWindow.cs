@@ -60,6 +60,24 @@ public partial class SettingsWindow : Window
     [Export]
     private Button _contrastResetButton = null;
 
+    [Export]
+    private CheckBox _chromaKeyEnableCheckBox = null;
+
+    [Export]
+    private ColorPicker _chromaKeyColorPicker = null;
+
+    [Export]
+    private Label _chromaKeyThresholdLabel = null;
+
+    [Export]
+    private HSlider _chromaKeyThresholdSlider = null;
+
+    [Export]
+    private Label _chromaKeySmoothnessLabel = null;
+
+    [Export]
+    private HSlider _chromaKeySmoothnessSlider = null;
+
     [ExportCategory("Audio")]
 
     [Export]
@@ -103,6 +121,17 @@ public partial class SettingsWindow : Window
     [Export]
     private HSlider _speedSlider = null;
 
+    private Color[] presetColors = [
+        Colors.White,
+        Colors.Red,
+        Colors.Orange,
+        Colors.Yellow,
+        Colors.Green,
+        Colors.Blue,
+        Colors.Indigo,
+        Colors.Violet
+    ];
+
     public override void _Ready()
     {
         CloseRequested += Hide;
@@ -113,6 +142,8 @@ public partial class SettingsWindow : Window
                 if (child is TabBar tabBar)
                     tabBar.FocusMode = Control.FocusModeEnum.None;
             }
+
+        // Video
 
         _disableVideoCheckBox.Toggled += toggle => Player.DisableVideo = toggle;
 
@@ -134,16 +165,7 @@ public partial class SettingsWindow : Window
                 control.FocusMode = Control.FocusModeEnum.None;
         }
 
-        foreach (var preset in new Color[] {
-            Colors.White,
-            Colors.Red,
-            Colors.Orange,
-            Colors.Yellow,
-            Colors.Green,
-            Colors.Blue,
-            Colors.Indigo,
-            Colors.Violet
-        })
+        foreach (var preset in presetColors)
             _colorPicker.AddPreset(preset);
 
         _colorPicker.ColorChanged += color => Player.Color = color;
@@ -196,6 +218,36 @@ public partial class SettingsWindow : Window
             _contrastSlider.SetValue(contrastDefault);
         };
 
+        _chromaKeyEnableCheckBox.Toggled += toggle => Player.ChromaKeyEnable = toggle;
+
+        foreach (var child in GetAllChildren(_chromaKeyColorPicker, true))
+        {
+            if (child is Slider slider)
+                slider.Scrollable = false;
+
+            if (child is Control control && child is not LineEdit)
+                control.FocusMode = Control.FocusModeEnum.None;
+        }
+
+        foreach (var preset in presetColors)
+            _chromaKeyColorPicker.AddPreset(preset);
+
+        _chromaKeyColorPicker.ColorChanged += color => Player.ChromaKeyColor = color;
+
+        _chromaKeyThresholdSlider.ValueChanged += value =>
+        {
+            Player.ChromaKeyThreshold = (float)value;
+            _chromaKeyThresholdLabel.Text = $"Chroma Key Threshold: {value:F2}";
+        };
+
+        _chromaKeySmoothnessSlider.ValueChanged += value =>
+        {
+            Player.ChromaKeySmoothness = (float)value;
+            _chromaKeySmoothnessLabel.Text = $"Chroma Key Smoothness: {value:F2}";
+        };
+
+        // Audio
+
         _disableAudioCheckBox.Toggled += toggle => Player.DisableAudio = toggle;
 
         _bufferLengthSlider.ValueChanged += value =>
@@ -221,6 +273,8 @@ public partial class SettingsWindow : Window
             Player.Volume = (float)value / 100.0f;
             _volumeLabel.Text = $"Volume: {(int)value}";
         };
+
+        // Playback
 
         _speedSlider.ValueChanged += value =>
         {

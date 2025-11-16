@@ -15,6 +15,7 @@ config/description="A Plugin to playing media files using FFmpeg for Godot Engin
 config/version="1.0"
 run/main_scene="uid://d2c5w5moq4ktk"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
+run/flush_stdout_on_print=true
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/image="uid://br3x77gnlokfr"
 config/icon="uid://ddiym4myxm6ge"
