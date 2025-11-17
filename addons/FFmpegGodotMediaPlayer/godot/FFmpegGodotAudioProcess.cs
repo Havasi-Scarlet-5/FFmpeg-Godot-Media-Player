@@ -367,7 +367,7 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
 
             var bufferDataLeft = bufferSize - bufferSpaceLeft - 1;
 
-            return 1.0 * bufferDataLeft / targetMixRate;
+            return (double)bufferDataLeft / targetMixRate;
         }
 
         return 0.0;

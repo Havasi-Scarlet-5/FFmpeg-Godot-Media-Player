@@ -177,14 +177,14 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
                 TimeBase = ffmpeg.av_q2d(_pStream->time_base);
 
                 if (_pStream->start_time != ffmpeg.AV_NOPTS_VALUE)
-                    StartTimeInSeconds = 1.0 * _pStream->start_time * TimeBase;
+                    StartTimeInSeconds = _pStream->start_time * TimeBase;
                 else if (_pFormatContext->start_time != ffmpeg.AV_NOPTS_VALUE)
-                    StartTimeInSeconds = 1.0 * _pFormatContext->start_time / ffmpeg.AV_TIME_BASE;
+                    StartTimeInSeconds = _pFormatContext->start_time / (double)ffmpeg.AV_TIME_BASE;
 
                 if (_pStream->duration != ffmpeg.AV_NOPTS_VALUE)
-                    DurationInSeconds = 1.0 * _pStream->duration * TimeBase;
+                    DurationInSeconds = _pStream->duration * TimeBase;
                 else if (_pFormatContext->duration != ffmpeg.AV_NOPTS_VALUE)
-                    DurationInSeconds = 1.0 * _pFormatContext->duration / ffmpeg.AV_TIME_BASE;
+                    DurationInSeconds = _pFormatContext->duration / (double)ffmpeg.AV_TIME_BASE;
                 else
                     FFmpegLogger.LogErr(this, "Cannot get duration!.");
 
@@ -412,8 +412,18 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
                         if (_pFilteredFrame->nb_samples > 0)
                         {
-                            // It just a guess not always corrected
-                            _lastFrameTime += 1.0 * _pFilteredFrame->nb_samples / SampleRate * _lastOutputPitch * _lastOutputSpeed;
+                            if (_pFilteredFrame->best_effort_timestamp != ffmpeg.AV_NOPTS_VALUE)
+                            {
+                                _pFilteredFrame->pts = _pFilteredFrame->best_effort_timestamp;
+                                _lastFrameTime = (_pFilteredFrame->pts * TimeBase) - StartTimeInSeconds;
+                            }
+                            else
+                            {
+                                var samplesDuration = (double)_pFilteredFrame->nb_samples / SampleRate;
+                                // It just a guess not always corrected
+                                _lastFrameTime += samplesDuration * _lastOutputPitch * _lastOutputSpeed;
+                            }
+
                             OnFilterDrain?.Invoke((*_pFilteredFrame, _lastFrameTime, _lastOutputPitch, _lastOutputSpeed));
                         }
 
@@ -630,9 +640,16 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
                             outFrame = *_pFilteredFrame;
 
                             if (_pFilteredFrame->best_effort_timestamp != ffmpeg.AV_NOPTS_VALUE)
+                            {
                                 _pFilteredFrame->pts = _pFilteredFrame->best_effort_timestamp;
-
-                            outFrameTimeInSeconds = _pFilteredFrame->pts * TimeBase - StartTimeInSeconds;
+                                outFrameTimeInSeconds = (_pFilteredFrame->pts * TimeBase) - StartTimeInSeconds;
+                            }
+                            else
+                            {
+                                var samplesDuration = (double)_pFilteredFrame->nb_samples / SampleRate;
+                                // It just a guess not always corrected
+                                outFrameTimeInSeconds = _lastFrameTime + samplesDuration * _outputPitch * _outputSpeed;
+                            }
 
                             _lastFrameTime = outFrameTimeInSeconds;
 
@@ -654,7 +671,7 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
                                 {
                                     outFrame = *_pFilteredFrame;
 
-                                    outFrameTimeInSeconds = DurationInSeconds - StartTimeInSeconds;
+                                    outFrameTimeInSeconds = DurationInSeconds;
 
                                     _lastFrameTime = outFrameTimeInSeconds;
 
@@ -707,7 +724,9 @@ public sealed unsafe class FFmpegAudioDecoder : IDisposable
 
                 _codecFlushed = false;
 
-                var targetSec = Math.Clamp(timeInSeconds + StartTimeInSeconds, 0.0, DurationInSeconds);
+                var targetSec = Math.Clamp(timeInSeconds + StartTimeInSeconds, StartTimeInSeconds, StartTimeInSeconds + DurationInSeconds);
+
+                _lastFrameTime = timeInSeconds;
 
                 long ts = (long)(targetSec / TimeBase);
 

@@ -176,26 +176,14 @@ public sealed unsafe class FFmpegVideoDecoder : IDisposable
                 TimeBase = ffmpeg.av_q2d(_pStream->time_base);
 
                 if (_pStream->start_time != ffmpeg.AV_NOPTS_VALUE)
-                {
-                    _pStream->start_time = _pStream->start_time;
-                    StartTimeInSeconds = 1.0 * _pStream->start_time * TimeBase;
-                }
+                    StartTimeInSeconds = _pStream->start_time * TimeBase;
                 else if (_pFormatContext->start_time != ffmpeg.AV_NOPTS_VALUE)
-                {
-                    _pFormatContext->start_time = _pFormatContext->start_time;
-                    StartTimeInSeconds = 1.0 * _pFormatContext->start_time / ffmpeg.AV_TIME_BASE;
-                }
+                    StartTimeInSeconds = _pFormatContext->start_time / (double)ffmpeg.AV_TIME_BASE;
 
                 if (_pStream->duration != ffmpeg.AV_NOPTS_VALUE)
-                {
-                    _pStream->duration = _pStream->duration;
-                    DurationInSeconds = 1.0 * _pStream->duration * TimeBase;
-                }
+                    DurationInSeconds = _pStream->duration * TimeBase;
                 else if (_pFormatContext->duration != ffmpeg.AV_NOPTS_VALUE)
-                {
-                    _pFormatContext->duration = _pFormatContext->duration;
-                    DurationInSeconds = 1.0 * _pFormatContext->duration / ffmpeg.AV_TIME_BASE;
-                }
+                    DurationInSeconds = _pFormatContext->duration / (double)ffmpeg.AV_TIME_BASE;
                 else if (!IsThumbnail)
                     FFmpegLogger.LogErr(this, "Cannot get duration!.");
 
@@ -480,7 +468,7 @@ public sealed unsafe class FFmpegVideoDecoder : IDisposable
                         if (_pFrame->best_effort_timestamp != ffmpeg.AV_NOPTS_VALUE)
                             _pFrame->pts = _pFrame->best_effort_timestamp;
 
-                        outFrameTimeInSeconds = _pFrame->pts * TimeBase - StartTimeInSeconds;
+                        outFrameTimeInSeconds = (_pFrame->pts * TimeBase) - StartTimeInSeconds;
 
                         return true;
                     }
@@ -525,7 +513,7 @@ public sealed unsafe class FFmpegVideoDecoder : IDisposable
 
                 _codecFlushed = false;
 
-                var targetSec = Math.Clamp(timeInSeconds + StartTimeInSeconds, 0.0, DurationInSeconds);
+                var targetSec = Math.Clamp(timeInSeconds + StartTimeInSeconds, StartTimeInSeconds, StartTimeInSeconds + DurationInSeconds);
 
                 long ts = (long)(targetSec / TimeBase);
 
