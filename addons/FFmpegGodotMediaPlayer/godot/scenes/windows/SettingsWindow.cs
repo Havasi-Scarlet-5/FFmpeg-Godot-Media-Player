@@ -5,8 +5,6 @@ namespace FFmpegMediaPlayer.godot.scenes.windows;
 
 public partial class SettingsWindow : Window
 {
-    public FFmpegGodotMediaPlayer Player = null;
-
     [ExportCategory("Video")]
 
     [Export]
@@ -142,19 +140,30 @@ public partial class SettingsWindow : Window
                 if (child is TabBar tabBar)
                     tabBar.FocusMode = Control.FocusModeEnum.None;
             }
+    }
 
+    public void RegisterPlayer(FFmpegGodotMediaPlayer player)
+    {
         // Video
 
-        _disableVideoCheckBox.Toggled += toggle => Player.DisableVideo = toggle;
+        _disableVideoCheckBox.Toggled += toggle => player.DisableVideo = toggle;
 
-        _canSkipFramesCheckBox.Toggled += toggle => Player.CanSkipFrames = toggle;
+        _disableAudioCheckBox.ButtonPressed = player.DisableVideo;
 
-        _seekAsyncCheckBox.Toggled += toggle => Player.SeekAsync = toggle;
+        _canSkipFramesCheckBox.Toggled += toggle => player.CanSkipFrames = toggle;
+
+        _canSkipFramesCheckBox.ButtonPressed = player.CanSkipFrames;
+
+        _seekAsyncCheckBox.Toggled += toggle => player.SeekAsync = toggle;
+
+        _seekAsyncCheckBox.ButtonPressed = player.SeekAsync;
 
         _stetchCheckBox.Toggled += toggle =>
-            Player.StretchMode = toggle
+            player.StretchMode = toggle
             ? TextureRect.StretchModeEnum.Scale
             : TextureRect.StretchModeEnum.KeepAspectCentered;
+
+        _stetchCheckBox.ButtonPressed = player.StretchMode == TextureRect.StretchModeEnum.Scale;
 
         foreach (var child in GetAllChildren(_colorPicker, true))
         {
@@ -168,57 +177,69 @@ public partial class SettingsWindow : Window
         foreach (var preset in presetColors)
             _colorPicker.AddPreset(preset);
 
-        _colorPicker.ColorChanged += color => Player.Color = color;
+        _colorPicker.ColorChanged += color => player.Color = color;
+
+        _colorPicker.Color = player.Color;
 
         _hueSlider.ValueChanged += value =>
         {
-            Player.Hue = (float)value;
+            player.Hue = (float)value;
             _hueLabel.Text = $"Hue: {(int)value}";
         };
+
+        _hueSlider.Value = player.Hue;
 
         _hueResetButton.Pressed += () =>
         {
             var hueDefault = 0.0f;
-            _hueSlider.SetValue(hueDefault);
+            _hueSlider.Value = hueDefault;
         };
 
         _saturationSlider.ValueChanged += value =>
         {
-            Player.Saturation = (float)value;
+            player.Saturation = (float)value;
             _saturationLabel.Text = $"Saturation: {(int)value}";
         };
+
+        _saturationSlider.Value = player.Saturation;
 
         _saturationResetButton.Pressed += () =>
         {
             var saturationDefault = 100.0f;
-            _saturationSlider.SetValue(saturationDefault);
+            _saturationSlider.Value = saturationDefault;
         };
 
         _lightnessSlider.ValueChanged += value =>
         {
-            Player.Lightness = (float)value;
+            player.Lightness = (float)value;
             _lightnessLabel.Text = $"Lightness: {(int)value}";
         };
+
+        _lightnessSlider.Value = player.Lightness;
 
         _lightnessResetButton.Pressed += () =>
         {
             var lightnessDefault = 50.0f;
-            _lightnessSlider.SetValue(lightnessDefault);
+            _lightnessSlider.Value = lightnessDefault;
         };
 
         _contrastSlider.ValueChanged += value =>
         {
-            Player.Contrast = (float)value;
+            player.Contrast = (float)value;
             _contrastLabel.Text = $"Contrast: {(int)value}";
         };
+
+        _contrastSlider.Value = player.Contrast;
 
         _contrastResetButton.Pressed += () =>
         {
             var contrastDefault = 0.0f;
-            _contrastSlider.SetValue(contrastDefault);
+            _contrastSlider.Value = contrastDefault;
         };
 
-        _chromaKeyEnableCheckBox.Toggled += toggle => Player.ChromaKeyEnable = toggle;
+        _chromaKeyEnableCheckBox.Toggled += toggle => player.ChromaKeyEnable = toggle;
+
+        _chromaKeyEnableCheckBox.ButtonPressed = player.ChromaKeyEnable;
 
         foreach (var child in GetAllChildren(_chromaKeyColorPicker, true))
         {
@@ -232,55 +253,71 @@ public partial class SettingsWindow : Window
         foreach (var preset in presetColors)
             _chromaKeyColorPicker.AddPreset(preset);
 
-        _chromaKeyColorPicker.ColorChanged += color => Player.ChromaKeyColor = color;
+        _chromaKeyColorPicker.ColorChanged += color => player.ChromaKeyColor = color;
+
+        _chromaKeyColorPicker.Color = player.ChromaKeyColor;
 
         _chromaKeyThresholdSlider.ValueChanged += value =>
         {
-            Player.ChromaKeyThreshold = (float)value;
+            player.ChromaKeyThreshold = (float)value;
             _chromaKeyThresholdLabel.Text = $"Chroma Key Threshold: {value:F2}";
         };
 
+        _chromaKeyThresholdSlider.Value = player.ChromaKeyThreshold;
+
         _chromaKeySmoothnessSlider.ValueChanged += value =>
         {
-            Player.ChromaKeySmoothness = (float)value;
+            player.ChromaKeySmoothness = (float)value;
             _chromaKeySmoothnessLabel.Text = $"Chroma Key Smoothness: {value:F2}";
         };
 
+        _chromaKeySmoothnessSlider.Value = player.ChromaKeySmoothness;
+
         // Audio
 
-        _disableAudioCheckBox.Toggled += toggle => Player.DisableAudio = toggle;
+        _disableAudioCheckBox.Toggled += toggle => player.DisableAudio = toggle;
+
+        _disableAudioCheckBox.ButtonPressed = player.DisableAudio;
 
         _bufferLengthSlider.ValueChanged += value =>
         {
-            Player.BufferLength = (float)(value / 1000.0);
+            player.BufferLength = (float)(value / 1000.0);
             _bufferLengthLabel.Text = $"Buffer Length: {(int)value}ms";
         };
 
+        _bufferLengthSlider.Value = (int)(player.BufferLength * 1000.0f);
+
         _pitchSlider.ValueChanged += value =>
         {
-            Player.Pitch = (float)value;
+            player.Pitch = (float)value;
             _pitchLabel.Text = $"Pitch: {value:F2}";
         };
 
+        _pitchSlider.Value = player.Pitch;
+
         _volumeMuteButton.Pressed += () =>
         {
-            Player.Mute = !Player.Mute;
-            _volumeIcon.Texture = Player.Mute ? _volumeMuteIcon : _volumeNormalIcon;
+            player.Mute = !player.Mute;
+            _volumeIcon.Texture = player.Mute ? _volumeMuteIcon : _volumeNormalIcon;
         };
 
         _volumeSlider.ValueChanged += value =>
         {
-            Player.Volume = (float)value / 100.0f;
+            player.Volume = (float)(value / 100.0f);
             _volumeLabel.Text = $"Volume: {(int)value}";
         };
+
+        _volumeSlider.Value = (int)(player.Volume * 100.0f);
 
         // Playback
 
         _speedSlider.ValueChanged += value =>
         {
-            Player.Speed = (float)value;
+            player.Speed = (float)value;
             _speedLabel.Text = $"Speed: {(float)value:F2}x";
         };
+
+        _speedSlider.Value = player.Speed;
     }
 
     public static List<Node> GetAllChildren(Node root, bool includeInternal = false)

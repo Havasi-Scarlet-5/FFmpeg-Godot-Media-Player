@@ -151,6 +151,8 @@ partial class FFmpegGodotMediaPlayerTest : Control
             _videoPlayer.Loop = toggle;
         };
 
+        _settingsWindow.RegisterPlayer(_videoPlayer);
+
         _controllerButton.Pressed += () =>
         {
             if (_settingsWindow.Visible)
@@ -166,8 +168,6 @@ partial class FFmpegGodotMediaPlayerTest : Control
             _settingsWindow.Show();
 
             _settingsWindow.SetPosition(new Vector2I(mousePos.X - windowSize.X, mousePos.Y - windowSize.Y - 32));
-
-            _settingsWindow.Player = _videoPlayer;
         };
 
         _fileMenuButton.GetPopup().IdPressed += id =>
