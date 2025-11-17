@@ -17,6 +17,7 @@ This project is an addon for the Godot Engine that integrates FFmpeg to decode a
 - Video seeking async
 - Stretch mode
 - Color, Hue, Saturation, Lightness, Contrast
+- Chroma Key
 - Audio buffer length
 - Pitch, Volume, Mute, Bus
 - Auto playing
@@ -27,10 +28,9 @@ This project is an addon for the Godot Engine that integrates FFmpeg to decode a
 
 ## Limitations
 
-- No hardware acceleration (there is no way to implement this in Godot)
-- C# maybe slower comparing to GDExtension
+- No hardware acceleration
 - Right now only video files can import into the editor ("mp4", "webm", "mpg", "mpeg", "mkv", "avi", "mov", "wmv", "ogv")
-- Only Windows is supported
+- Only Windows is supported at this moment
 
 ## Requirements
 
