@@ -411,7 +411,7 @@ public partial class FFmpegGodotMediaPlayer : Control
         // Delay 100ms to keep synchronize with audio
         VideoProcess?.Update(_clockTime + (IsAudioValid ? -0.1 : 0.0));
 
-        AudioProcess?.Update(_clockTime);
+        AudioProcess?.Update();
 
         var videoFinished = !IsVideoValid || VideoProcess.IsFinished;
 

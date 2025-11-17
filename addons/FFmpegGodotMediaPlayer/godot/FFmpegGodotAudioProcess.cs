@@ -97,12 +97,12 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
         SendFrameToQueue(f.frame, f.time, f.pitch, f.speed);
     }
 
-    public void Update(double clockTime)
+    public void Update()
     {
         if (!PlayerValid || !IsRunning)
             return;
 
-        IsFinished = clockTime >= Duration;
+        IsFinished = _currentFrameTime >= Duration;
 
         if (IsFinished)
         {
@@ -121,7 +121,7 @@ public sealed unsafe partial class FFmpegGodotAudioProcess : RefCounted
             SendFrameToQueue(frame, frameTime, framePitch, frameSpeed);
 
         if (!_player.Playing)
-            _player.CallDeferred("play", 0.0f);
+            Callable.From(() => _player.Play(0.0f)).CallDeferred();
 
         if (IsPlaybackValid(out var playback))
         {
