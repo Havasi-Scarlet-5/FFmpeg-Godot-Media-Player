@@ -398,11 +398,11 @@ public partial class FFmpegGodotMediaPlayer : Control
                 {
                     var absDrift = Mathf.Abs(audioTime - _clockTime);
 
-                    var threshold = 1.0 / 24.0;
+                    var threshold = 0.05;
 
-                    var needSync = absDrift > threshold;
+                    var outOfSync = absDrift > threshold;
 
-                    if (needSync)
+                    if (outOfSync)
                         _clockTime = audioTime;
                 }
 
