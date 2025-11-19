@@ -59,7 +59,7 @@ internal static class FFmpegBinariesHelper
                         && file.Contains(extension, StringComparison.OrdinalIgnoreCase)
                         && NativeLibrary.TryLoad(file, out _)
                     )
-                        FFmpegLogger.Log(typeof(FFmpegBinariesHelper), Path.GetFileName(file), " loaded");
+                        FFmpegLogger.Log(typeof(FFmpegBinariesHelper), file, " loaded");
                 }
             }
         }
