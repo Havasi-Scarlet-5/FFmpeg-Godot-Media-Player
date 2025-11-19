@@ -30,7 +30,7 @@ This project is an addon for the Godot Engine that integrates FFmpeg to decode a
 
 - No hardware acceleration
 - Right now only video files can import into the editor ("mp4", "webm", "mpg", "mpeg", "mkv", "avi", "mov", "wmv", "ogv")
-- Only Windows is supported at this moment
+- Only windows is supported at this moment
 
 ## Requirements
 
@@ -44,7 +44,7 @@ This project is an addon for the Godot Engine that integrates FFmpeg to decode a
 - Make sure you install the nuget packages
 
 ```
-dotnet add package FFmpeg.AutoGen --version 7.1.1
+dotnet add package FFmpeg.AutoGen.Abstractions --version 7.1.1
 dotnet add package FFmpeg.AutoGen.Bindings.DynamicallyLoaded --version 7.1.1
 ```
 

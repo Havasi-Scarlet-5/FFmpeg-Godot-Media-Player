@@ -113,11 +113,15 @@ public partial class FFmpegGodotExportPlugin : EditorExportPlugin
         return "FFmpegGodotExportPlugin";
     }
 
-    private void AddSharedLibrary(
-        string sharedLibraryPath,
-        string extension,
-        string outputPath
-    )
+    public override bool _SupportsPlatform(EditorExportPlatform platform)
+    {
+        if (platform is EditorExportPlatformPC)
+            return true;
+
+        return false;
+    }
+
+    private void AddSharedLibrary(string sharedLibraryPath, string extension, string outputPath)
     {
         foreach (string file in DirAccess.GetFilesAt(sharedLibraryPath))
         {
@@ -140,8 +144,6 @@ public partial class FFmpegGodotExportPlugin : EditorExportPlugin
 
         if (features.Contains("windows") && features.Contains("x86_64"))
             AddSharedLibrary(sharedLibraryPath + "win-x64", "dll", string.Empty);
-        else if (features.Contains("linux") && features.Contains("x86_64"))
-            AddSharedLibrary(sharedLibraryPath + "linux-x64", "so", string.Empty);
         else
             FFmpegLogger.LogErr(this, "Current platform is not supported!");
     }
@@ -151,6 +153,10 @@ public partial class FFmpegGodotExportPlugin : EditorExportPlugin
         foreach (var extension in FFmpegStatic.RecognizedVideoExtensions)
             if (path.GetExtension().Equals(extension, StringComparison.OrdinalIgnoreCase))
                 AddFile(path, FileAccess.GetFileAsBytes(path), false);
+    }
+
+    public override void _ExportEnd()
+    {
     }
 }
 

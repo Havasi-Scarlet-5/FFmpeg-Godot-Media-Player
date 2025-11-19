@@ -14,26 +14,14 @@ internal static class FFmpegBinariesHelper
 
         var arch = RuntimeInformation.ProcessArchitecture;
 
-        var isX64 = arch == Architecture.X64;
-
         var extension = string.Empty;
 
-        if (OperatingSystem.IsWindows() && isX64)
+        if (OperatingSystem.IsWindows() && arch == Architecture.X64)
         {
             extension = ".dll";
 
 #if GODOT
             probe = "addons/FFmpegGodotMediaPlayer/libs/win-x64";
-#else
-
-#endif
-        }
-        else if (OperatingSystem.IsLinux() && isX64)
-        {
-            extension = ".so";
-
-#if GODOT
-            probe = "addons/FFmpegGodotMediaPlayer/libs/linux-x64";
 #else
 
 #endif
