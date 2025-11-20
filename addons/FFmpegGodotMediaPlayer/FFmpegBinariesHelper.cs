@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using FFmpeg.AutoGen.Bindings.DynamicallyLoaded;
 
 namespace FFmpegMediaPlayer;
 
@@ -14,14 +15,18 @@ internal static class FFmpegBinariesHelper
 
         var arch = RuntimeInformation.ProcessArchitecture;
 
-        var extension = string.Empty;
-
         if (OperatingSystem.IsWindows() && arch == Architecture.X64)
         {
-            extension = ".dll";
-
 #if GODOT
             probe = "addons/FFmpegGodotMediaPlayer/libs/win-x64";
+#else
+
+#endif
+        }
+        else if (OperatingSystem.IsLinux() && arch == Architecture.X64)
+        {
+#if GODOT
+            probe = "addons/FFmpegGodotMediaPlayer/libs/linux-x64";
 #else
 
 #endif
@@ -32,24 +37,17 @@ internal static class FFmpegBinariesHelper
             return;
         }
 
-        if (current != null)
+        var ffmpegBinaryPath = probe != string.Empty ? Path.Combine(current, probe) : current;
+
+#if GODOT
+        if (!Godot.OS.HasFeature("editor"))
+            ffmpegBinaryPath = current;
+#endif
+
+        if (Directory.Exists(ffmpegBinaryPath))
         {
-            var ffmpegBinaryPath = probe != string.Empty ? Path.Combine(current, probe) : current;
-
-            if (Directory.Exists(ffmpegBinaryPath))
-            {
-                FFmpegLogger.Log(typeof(FFmpegBinariesHelper), $"FFmpeg binaries found in: {ffmpegBinaryPath}");
-
-                foreach (var file in Directory.EnumerateFiles(ffmpegBinaryPath))
-                {
-                    if (
-                        extension != string.Empty
-                        && file.Contains(extension, StringComparison.OrdinalIgnoreCase)
-                        && NativeLibrary.TryLoad(file, out _)
-                    )
-                        FFmpegLogger.Log(typeof(FFmpegBinariesHelper), file, " loaded");
-                }
-            }
+            FFmpegLogger.Log(typeof(FFmpegBinariesHelper), $"FFmpeg binaries found in: {ffmpegBinaryPath}");
+            DynamicallyLoadedBindings.LibrariesPath = ffmpegBinaryPath;
         }
         else
             FFmpegLogger.LogErr(typeof(FFmpegBinariesHelper), "Cannot load FFmpeg shared library!");

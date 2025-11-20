@@ -121,18 +121,24 @@ public partial class FFmpegGodotExportPlugin : EditorExportPlugin
         return false;
     }
 
-    private void AddSharedLibrary(string sharedLibraryPath, string extension, string outputPath)
+    private void AddSharedLibrary(string sharedLibraryPath, string outputPath)
     {
+        foreach (string directory in DirAccess.GetDirectoriesAt(sharedLibraryPath))
+        {
+            var fullPath = sharedLibraryPath + "/" + directory;
+
+            AddSharedObject(fullPath, [], outputPath);
+
+            FFmpegLogger.Log(this, $"{fullPath} added");
+        }
+
         foreach (string file in DirAccess.GetFilesAt(sharedLibraryPath))
         {
-            if (file.Contains("." + extension, StringComparison.OrdinalIgnoreCase))
-            {
-                var fullPath = sharedLibraryPath + "/" + file;
+            var fullPath = sharedLibraryPath + "/" + file;
 
-                AddSharedObject(fullPath, [], outputPath);
+            AddSharedObject(fullPath, [], outputPath);
 
-                FFmpegLogger.Log(this, $"{fullPath} added");
-            }
+            FFmpegLogger.Log(this, $"{fullPath} added");
         }
     }
 
@@ -143,7 +149,9 @@ public partial class FFmpegGodotExportPlugin : EditorExportPlugin
         var sharedLibraryPath = "res://addons/FFmpegGodotMediaPlayer/libs/";
 
         if (features.Contains("windows") && features.Contains("x86_64"))
-            AddSharedLibrary(sharedLibraryPath + "win-x64", "dll", string.Empty);
+            AddSharedLibrary(sharedLibraryPath + "win-x64", string.Empty);
+        else if (features.Contains("linux") && features.Contains("x86_64"))
+            AddSharedLibrary(sharedLibraryPath + "linux-x64", string.Empty);
         else
             FFmpegLogger.LogErr(this, "Current platform is not supported!");
     }
