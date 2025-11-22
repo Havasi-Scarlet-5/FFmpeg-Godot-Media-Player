@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Godot;
 
 namespace FFmpegMediaPlayer.godot;
@@ -11,8 +14,11 @@ public partial class FFmpegGodotMediaPlayer : Control
     public FFmpegGodotMediaSource Source
     {
         get => GetSource();
-        set => SetSource(value);
+        set => SetSource(value, LoadAsync);
     }
+
+    [Export]
+    public bool LoadAsync = false;
 
     [ExportCategory("Video")]
 
@@ -346,6 +352,8 @@ public partial class FFmpegGodotMediaPlayer : Control
 
     private double _lastAudioTime = 0.0;
 
+    private CancellationTokenSource _loadCTS;
+
     public override void _Ready()
     {
         FFmpegStatic.DebugLog = _debugLog;
@@ -446,7 +454,21 @@ public partial class FFmpegGodotMediaPlayer : Control
         return _source;
     }
 
-    public void SetSource(FFmpegGodotMediaSource mediaSource)
+    private void LoadDecoders(FFmpegGodotMediaSource source)
+    {
+        var src = new FFmpegMediaSource() { Url = source.Url };
+
+        if (src.Url.StartsWith("res://"))
+            src.Buffer = FileAccess.GetFileAsBytes(src.Url);
+
+        if (!DisableVideo)
+            VideoDecoder = new FFmpegVideoDecoder(src);
+
+        if (!DisableAudio)
+            AudioDecoder = new FFmpegAudioDecoder(src);
+    }
+
+    public async void SetSource(FFmpegGodotMediaSource mediaSource, bool loadAsync = false)
     {
         Close();
 
@@ -455,66 +477,77 @@ public partial class FFmpegGodotMediaPlayer : Control
         if (!IsNodeReady() || _source == null)
             return;
 
-        var source = new FFmpegMediaSource() { Url = _source.Url };
-
-        if (source.Url.StartsWith("res://"))
-            source.Buffer = FileAccess.GetFileAsBytes(source.Url);
-
-        if (!DisableVideo)
+        if (loadAsync)
         {
-            VideoDecoder = new FFmpegVideoDecoder(source);
+            _loadCTS = new();
 
-            if (VideoDecoder.Exist)
-                VideoProcess = new FFmpegGodotVideoProcess(VideoDecoder, TextureRect);
-            else
-                CloseVideo();
+            try
+            {
+                await Task.Run(() => LoadDecoders(_source), _loadCTS.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            finally
+            {
+                _loadCTS?.Dispose();
+                _loadCTS = null;
+            }
         }
+        else
+            LoadDecoders(_source);
 
-        VideoProcess?.SetCanSkipFrames(_canSkipFrames);
-
-        VideoProcess?.SetSpeed(_speed);
-
-        VideoProcess?.SetColor(_color);
-
-        VideoProcess?.SetHue(_hue);
-
-        VideoProcess?.SetSaturation(_saturation);
-
-        VideoProcess?.SetLightness(_lightness);
-
-        VideoProcess?.SetContrast(_contrast);
-
-        VideoProcess?.SetChromaKeyEnable(_chromakeyEnable);
-
-        VideoProcess?.SetChromaKeyColor(_chromaKeyColor);
-
-        VideoProcess?.SetChromaKeyThreshold(_chromaKeyThreshold);
-
-        VideoProcess?.SetChromaKeySmoothness(_chromaKeySmoothness);
-
-        if (!DisableAudio)
+        if (VideoDecoder?.Exist ?? false)
         {
-            AudioDecoder = new FFmpegAudioDecoder(source);
+            VideoProcess = new FFmpegGodotVideoProcess(VideoDecoder, TextureRect);
 
-            if (AudioDecoder.Exist)
-                AudioProcess = new FFmpegGodotAudioProcess(AudioDecoder, AudioStreamPlayer, _bufferLength);
-            else
-                CloseAudio();
+            VideoProcess?.SetCanSkipFrames(_canSkipFrames);
+
+            VideoProcess?.SetSpeed(_speed);
+
+            VideoProcess?.SetColor(_color);
+
+            VideoProcess?.SetHue(_hue);
+
+            VideoProcess?.SetSaturation(_saturation);
+
+            VideoProcess?.SetLightness(_lightness);
+
+            VideoProcess?.SetContrast(_contrast);
+
+            VideoProcess?.SetChromaKeyEnable(_chromakeyEnable);
+
+            VideoProcess?.SetChromaKeyColor(_chromaKeyColor);
+
+            VideoProcess?.SetChromaKeyThreshold(_chromaKeyThreshold);
+
+            VideoProcess?.SetChromaKeySmoothness(_chromaKeySmoothness);
         }
+        else
+            CloseVideo();
 
-        AudioProcess?.SetPitch(_pitch);
+        if (AudioDecoder?.Exist ?? false)
+        {
+            AudioProcess = new FFmpegGodotAudioProcess(AudioDecoder, AudioStreamPlayer, _bufferLength);
 
-        AudioProcess?.SetSpeed(_speed / _pitch);
+            AudioProcess?.SetPitch(_pitch);
 
-        AudioProcess?.SetVolume(_volume);
+            AudioProcess?.SetSpeed(_speed / _pitch);
 
-        AudioProcess?.SetMute(Mute);
+            AudioProcess?.SetVolume(_volume);
+
+            AudioProcess?.SetMute(Mute);
+        }
+        else
+            CloseAudio();
 
         if (IsVideoValid || IsAudioValid)
         {
             Loaded = true;
 
-            EmitSignal(SignalName.LoadedCompleted);
+            if (loadAsync)
+                EmitSignal(SignalName.LoadedCompleted);
 
             if (AutoPlay)
                 Play();
@@ -523,11 +556,17 @@ public partial class FFmpegGodotMediaPlayer : Control
 
     public void Open(FFmpegGodotMediaSource source)
     {
-        SetSource(source);
+        SetSource(source, LoadAsync);
     }
 
     public void Close()
     {
+        _loadCTS?.Cancel();
+
+        _loadCTS?.Dispose();
+
+        _loadCTS = null;
+
         Stop();
 
         CloseVideo();
