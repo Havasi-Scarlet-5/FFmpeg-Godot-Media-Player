@@ -277,6 +277,12 @@ public partial class FFmpegGodotMediaPlayer : Control
         }
     }
 
+    [Export]
+    public double VideoDelayCompensation = -0.2;
+
+    [Export]
+    public double VideoClockSyncThreshold = 0.05;
+
     [ExportCategory("Playback")]
 
     [Export]
@@ -334,7 +340,7 @@ public partial class FFmpegGodotMediaPlayer : Control
 
     private double _clockTime = 0.0;
 
-    public double ClockTime => Mathf.Clamp(_clockTime, 0.0, Length);
+    public double ClockTime => _clockTime;
 
     public double Time => IsVideoValid ? VideoProcess.Time : IsAudioValid ? AudioProcess.Time : 0.0;
 
@@ -406,9 +412,7 @@ public partial class FFmpegGodotMediaPlayer : Control
                 {
                     var absDrift = Mathf.Abs(audioTime - _clockTime);
 
-                    var threshold = 0.05;
-
-                    var outOfSync = absDrift > threshold;
+                    var outOfSync = absDrift > VideoClockSyncThreshold;
 
                     if (outOfSync)
                         _clockTime = audioTime;
@@ -418,8 +422,7 @@ public partial class FFmpegGodotMediaPlayer : Control
             }
         }
 
-        // Delay 100ms to keep synchronize with audio
-        VideoProcess?.Update(_clockTime + (IsAudioValid ? -0.1 : 0.0));
+        VideoProcess?.Update(_clockTime + VideoDelayCompensation);
 
         AudioProcess?.Update();
 
