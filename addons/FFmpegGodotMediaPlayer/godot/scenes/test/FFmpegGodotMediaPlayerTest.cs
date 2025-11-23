@@ -77,8 +77,10 @@ partial class FFmpegGodotMediaPlayerTest : Control
 
         _fullScreenButton.Pressed += ToggleFullScreen;
 
+        // You can add more it you like
         _openFileDialog.AddFilter("*.mp4, *.webm, *.mpg, *.mpeg, *.mkv, *.avi, *.mov, *.wmv, *.ogv", "Supported Video Files");
 
+        // You can add more it you like
         _openFileDialog.AddFilter("*.mp3, *.ogg, *.wav, *.flac", "Supported Audio Files");
 
         // You can load from (res://) by using this:
@@ -217,6 +219,8 @@ partial class FFmpegGodotMediaPlayerTest : Control
 
         _playbackButton.Icon = _mediaPlayer.IsPlaying ? _pauseIcon : _playIcon;
 
+        var clockTime = _mediaPlayer.ClockTime;
+
         var videoTime = _mediaPlayer.VideoProcess?.Time ?? 0.0;
 
         var videoLength = _mediaPlayer.VideoProcess?.Duration ?? 0.0;
@@ -228,7 +232,9 @@ partial class FFmpegGodotMediaPlayerTest : Control
         var difference = (_mediaPlayer.IsVideoValid && _mediaPlayer.IsAudioValid) ? (videoTime - audioTime) : 0.0;
 
         _debugLabel.Text =
-            $"Video Time | Length: {videoTime:F3} | {videoLength:F3}"
+            $"Engine FPS: {Mathf.RoundToInt(Engine.GetFramesPerSecond())}"
+            + $"\nClock Time: {clockTime:F3}"
+            + $"\nVideo Time | Length: {videoTime:F3} | {videoLength:F3}"
             + $"\nAudio Time | Length: {audioTime:F3} | {audioLength:F3}"
             + $"\n(Video {(difference == 0.0 ? "=" : difference > 0 ? ">" : "<")} Audio): {Mathf.Abs(difference):F3}"
             + $"\nPlaying: {_mediaPlayer.IsPlaying}"

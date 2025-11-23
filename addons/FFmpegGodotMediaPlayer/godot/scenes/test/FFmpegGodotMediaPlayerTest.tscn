@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://d2c5w5moq4ktk"]
+[gd_scene load_steps=19 format=3 uid="uid://d2c5w5moq4ktk"]
 
 [ext_resource type="Script" uid="uid://cp5oprfug1vc" path="res://addons/FFmpegGodotMediaPlayer/godot/scenes/test/FFmpegGodotMediaPlayerTest.cs" id="1_p5tp8"]
 [ext_resource type="Texture2D" uid="uid://c4nvki51pui0i" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/play.svg" id="2_1txfr"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://b53q7wagpa3v4" path="res://addons/FFmpegGodotMediaPlayer/godot/FFmpegGodotMediaPlayer.cs" id="6_qlqyu"]
 [ext_resource type="StyleBox" uid="uid://c0edsfm44aao6" path="res://addons/FFmpegGodotMediaPlayer/godot/themes/panel_container_box_flat_theme.tres" id="7_neokr"]
 [ext_resource type="Theme" uid="uid://cyw821moyqybs" path="res://addons/FFmpegGodotMediaPlayer/godot/themes/menu_button_theme.tres" id="8_b2ws8"]
+[ext_resource type="Texture2D" uid="uid://djh8fccm5lbus" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/info.svg" id="9_1txfr"]
 [ext_resource type="Texture2D" uid="uid://vsrl7sgaf4w8" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/stop.svg" id="9_db6q0"]
 [ext_resource type="Texture2D" uid="uid://sp0gv346qrqo" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/subtitles.svg" id="10_tqoql"]
 [ext_resource type="Texture2D" uid="uid://5afc5nkkgdpm" path="res://addons/FFmpegGodotMediaPlayer/godot/icons/loop.svg" id="11_iebxv"]
@@ -49,7 +50,7 @@ _playIcon = ExtResource("2_1txfr")
 _pauseIcon = ExtResource("3_s5nuy")
 _stopButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/StopButton")
 _loopButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/LoopButton")
-_controllerButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/ControllerButton")
+_controllerButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/SettingsButton")
 _fullScreenButton = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/FullScreenButton")
 _fullScreenOnIcon = ExtResource("4_k6yls")
 _fullScreenOffIcon = ExtResource("5_8uaji")
@@ -152,6 +153,8 @@ theme_override_constants/separation = 12
 
 [node name="TimeLabel" type="Label" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
 layout_mode = 2
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
 text = "00:00:000"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -173,6 +176,8 @@ step = 0.0
 
 [node name="LengthLabel" type="Label" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
 layout_mode = 2
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
 text = "00:00:000"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -217,13 +222,23 @@ toggle_mode = true
 icon = ExtResource("11_iebxv")
 expand_icon = true
 
-[node name="ControllerButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+[node name="SettingsButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
-tooltip_text = "Playback settings"
+tooltip_text = "Settings"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 icon = ExtResource("12_b88u1")
+expand_icon = true
+
+[node name="InfoButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+tooltip_text = "Information (Unavaiable right now)"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+disabled = true
+icon = ExtResource("9_1txfr")
 expand_icon = true
 
 [node name="FullScreenButton" type="Button" parent="UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer"]
