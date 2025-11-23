@@ -11,11 +11,11 @@ uniform mat3 color_space_matrix;
 // Manual adjustments
 uniform float saturation : hint_range(0.0, 200.0, 1.0) = 100.0;
 
-uniform float lightness  : hint_range(0.0, 100.0, 1.0) = 50.0;
+uniform float lightness : hint_range(0.0, 100.0, 1.0) = 50.0;
 
-uniform float contrast   : hint_range(-100.0, 100.0, 1.0) = 0.0;
+uniform float contrast : hint_range(-100.0, 100.0, 1.0) = 0.0;
 
-uniform float hue        : hint_range(0.0, 360.0, 1.0) = 0.0;
+uniform float hue : hint_range(0.0, 360.0, 1.0) = 0.0;
 
 // Tint color
 uniform vec4 tint_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
@@ -95,7 +95,7 @@ vec3 hsv2rgb(vec3 c)
     if (i == 3) 
         return vec3(p, q, v);
 
-    if (i == 4) 
+    if (i == 4)
         return vec3(t, p, v);
 
     return vec3(v, p, q);
@@ -131,11 +131,11 @@ void fragment()
     float Y, U, V;
 
     // LIMITED RANGE (16-235/240) - Standard for video
-    Y = (y_sample * 255.0 - 16.0) / 219.0;   // Normalize 16-235 to 0-1
+    Y = (y_sample * 255.0 - 16.0) / 219.0; // Normalize 16-235 to 0-1
 
-    U = (u_sample * 255.0 - 128.0) / 224.0;  // Normalize 16-240 to -0.5 - 0.5
+    U = (u_sample * 255.0 - 128.0) / 224.0; // Normalize 16-240 to -0.5 - 0.5
 
-    V = (v_sample * 255.0 - 128.0) / 224.0;  // Normalize 16-240 to -0.5 - 0.5
+    V = (v_sample * 255.0 - 128.0) / 224.0; // Normalize 16-240 to -0.5 - 0.5
 
     vec3 yuv = vec3(Y, U, V);
 
@@ -143,6 +143,12 @@ void fragment()
 
     // Clamp to valid range after conversion
     rgb = clamp(rgb, 0.0, 1.0);
+
+    // Calculate chroma key alpha
+    float alpha = 1.0;
+
+    if (chroma_key_enable)
+        alpha = calculate_chroma_alpha(rgb, chroma_key_color, chroma_key_threshold, chroma_key_smoothness);
 
     // Contrast (-100..100 → 0..2)
     float c = (contrast + 100.0) / 100.0;
@@ -160,7 +166,7 @@ void fragment()
     rgb = mix(vec3(luma), rgb, s);
 
     // Hue shift
-    if (abs(hue) > 0.001) 
+    if (abs(hue) > 0.001)
     {
         vec3 hsv = rgb2hsv(rgb);
 
@@ -175,14 +181,7 @@ void fragment()
     // Final clamp
     rgb = clamp(rgb, 0.0, 1.0);
 
-    // Calculate chroma key alpha
-    float alpha = tint_color.a;
-
-    if (chroma_key_enable)
-    {
-        float chroma_alpha = calculate_chroma_alpha(rgb, chroma_key_color, chroma_key_threshold, chroma_key_smoothness);
-        alpha *= chroma_alpha;
-    }
+    alpha *= tint_color.a;
 
     COLOR = vec4(rgb, alpha);
 }
