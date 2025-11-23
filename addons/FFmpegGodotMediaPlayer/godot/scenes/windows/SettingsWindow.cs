@@ -5,6 +5,9 @@ namespace FFmpegMediaPlayer.godot.scenes.windows;
 
 public partial class SettingsWindow : Window
 {
+    [Export]
+    private CheckBox _loadAsyncCheckBox = null;
+
     [ExportCategory("Video")]
 
     [Export]
@@ -111,6 +114,12 @@ public partial class SettingsWindow : Window
     [Export]
     private HSlider _volumeSlider = null;
 
+    [Export]
+    private SpinBox _videoDelayCompensationSpinBox = null;
+
+    [Export]
+    private SpinBox _videoClockSyncThresholdSpinBox = null;
+
     [ExportCategory("Playback")]
 
     [Export]
@@ -144,6 +153,10 @@ public partial class SettingsWindow : Window
 
     public void RegisterPlayer(FFmpegGodotMediaPlayer player)
     {
+        _loadAsyncCheckBox.Toggled += toggle => player.LoadAsync = toggle;
+
+        _loadAsyncCheckBox.ButtonPressed = player.LoadAsync;
+
         // Video
 
         _disableVideoCheckBox.Toggled += toggle => player.DisableVideo = toggle;
@@ -308,6 +321,20 @@ public partial class SettingsWindow : Window
         };
 
         _volumeSlider.Value = (int)(player.Volume * 100.0f);
+
+        _videoDelayCompensationSpinBox.ValueChanged += value =>
+        {
+            player.VideoDelayCompensation = value;
+        };
+
+        _videoDelayCompensationSpinBox.Value = player.VideoDelayCompensation;
+
+        _videoClockSyncThresholdSpinBox.ValueChanged += value =>
+        {
+            player.VideoClockSyncThreshold = value;
+        };
+
+        _videoClockSyncThresholdSpinBox.Value = player.VideoClockSyncThreshold;
 
         // Playback
 

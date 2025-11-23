@@ -7,7 +7,7 @@ namespace FFmpegMediaPlayer.godot.scenes.test;
 partial class FFmpegGodotMediaPlayerTest : Control
 {
     [Export]
-    private FFmpegGodotMediaPlayer _videoPlayer = null;
+    private FFmpegGodotMediaPlayer _mediaPlayer = null;
 
     [Export]
     private Label _debugLabel = null;
@@ -62,7 +62,7 @@ partial class FFmpegGodotMediaPlayerTest : Control
 
     private double _showTimeout = 0.0;
 
-    private bool _newVideoLoaded = false;
+    private bool _newMediaFileLoaded = false;
 
     private bool _isPlaying = false;
 
@@ -81,53 +81,67 @@ partial class FFmpegGodotMediaPlayerTest : Control
 
         _openFileDialog.AddFilter("*.mp3, *.ogg, *.wav, *.flac", "Supported Audio Files");
 
+        // You can load from (res://) by using this:
+        // var source = GD.Load<FFmpegGodotMediaSource>("res://video.mp4");
+        // GD.Load can only loaded with (res://) path
+        // For both (file system) and (res://) path use this:
+        // var source = new FFmpegGodotMediaSource() { Url = "C:/video.mp4" };
+        // Then _mediaPlayer.Source = source;
+        // Or can be using with _mediaPlayer.Open(source), _mediaPlayer.SetSource(source) as well
+
         _openFileDialog.FileSelected += path =>
         {
-            _newVideoLoaded = true;
-
-            _videoPlayer.Open(new FFmpegGodotMediaSource() { Url = path });
-
-            if (_isPlaying && !_videoPlayer.AutoPlay)
-                _videoPlayer.Play();
-            else if (_videoPlayer.AutoPlay)
-                _isPlaying = true;
-
-            if (_videoPlayer.Loaded)
-                GetWindow().Title = path.GetFile().GetBaseName();
+            _newMediaFileLoaded = true;
+            _mediaPlayer.Open(new FFmpegGodotMediaSource() { Url = path });
         };
 
         GetViewport().GetWindow().FilesDropped += file =>
         {
-            _newVideoLoaded = true;
-
-            _videoPlayer.Open(new FFmpegGodotMediaSource() { Url = file[0] });
-
-            if (_isPlaying && !_videoPlayer.AutoPlay)
-                _videoPlayer.Play();
-            else if (_videoPlayer.AutoPlay)
-                _isPlaying = true;
-
-            if (_videoPlayer.Loaded)
-                GetWindow().Title = file[0].GetFile().GetBaseName();
+            _newMediaFileLoaded = true;
+            _mediaPlayer.Open(new FFmpegGodotMediaSource() { Url = file[0] });
         };
 
-        _timeSlider.DragStarted += _videoPlayer.Pause;
+        // If LoadAsync is enable then LoadCompleted must be used
+        _mediaPlayer.OnLoadedCompleted += player =>
+        {
+            if (_isPlaying && !player.AutoPlay)
+                player.Play();
+            else if (player.AutoPlay)
+                _isPlaying = true;
+
+            GetWindow().Title = player.Source.Url.GetFile().GetBaseName();
+        };
+
+        // Called when media is playing finished, never called when loop is enable
+        _mediaPlayer.OnFinished += player =>
+        {
+        };
+
+        // Called when media is closed
+        _mediaPlayer.OnClosed += player =>
+        {
+            GetWindow().Title = (string)ProjectSettings.GetSetting("application/config/name");
+        };
+
+        _timeSlider.DragStarted += _mediaPlayer.Pause;
 
         _timeSlider.ValueChanged += value =>
         {
-            if (_newVideoLoaded)
+            // There is some fucking bug with this slider :/
+            if (_newMediaFileLoaded)
             {
-                _newVideoLoaded = false;
+                _newMediaFileLoaded = false;
                 return;
             }
 
-            _videoPlayer.Seek(value);
+            // Changed media position in seconds
+            _mediaPlayer.Seek(value);
         };
 
         _timeSlider.DragEnded += valueChanged =>
         {
             if (_isPlaying)
-                _videoPlayer.Play();
+                _mediaPlayer.Play();
         };
 
         _playbackButton.Pressed += () =>
@@ -135,23 +149,23 @@ partial class FFmpegGodotMediaPlayerTest : Control
             _isPlaying = !_isPlaying;
 
             if (_isPlaying)
-                _videoPlayer.Play();
+                _mediaPlayer.Play();
             else
-                _videoPlayer.Pause();
+                _mediaPlayer.Pause();
         };
 
         _stopButton.Pressed += () =>
         {
             _isPlaying = false;
-            _videoPlayer.Stop();
+            _mediaPlayer.Stop();
         };
 
         _loopButton.Toggled += toggle =>
         {
-            _videoPlayer.Loop = toggle;
+            _mediaPlayer.Loop = toggle;
         };
 
-        _settingsWindow.RegisterPlayer(_videoPlayer);
+        _settingsWindow.RegisterPlayer(_mediaPlayer);
 
         _controllerButton.Pressed += () =>
         {
@@ -178,8 +192,8 @@ partial class FFmpegGodotMediaPlayerTest : Control
                     _openFileDialog.PopupCentered();
                     break;
                 case 1: // Close
-                    _videoPlayer.Close();
-                    GetWindow().Title = (string)ProjectSettings.GetSetting("application/config/name");
+                    // Close the media
+                    _mediaPlayer.Close();
                     break;
                 case 2: // Exit
                     GetTree().Quit();
@@ -187,38 +201,38 @@ partial class FFmpegGodotMediaPlayerTest : Control
             }
         };
 
-        if (_videoPlayer.Source != null && _videoPlayer.AutoPlay)
+        if (_mediaPlayer.Source != null && _mediaPlayer.AutoPlay)
             _isPlaying = true;
     }
 
     public override void _Process(double delta)
     {
-        _timeLabel.Text = TimeSpan.FromSeconds(_videoPlayer.Time).ToString("mm\\:ss\\:fff");
+        _timeLabel.Text = TimeSpan.FromSeconds(_mediaPlayer.Time).ToString("mm\\:ss\\:fff");
 
-        lengthLabel.Text = TimeSpan.FromSeconds(_videoPlayer.Length).ToString("mm\\:ss\\:fff");
+        lengthLabel.Text = TimeSpan.FromSeconds(_mediaPlayer.Length).ToString("mm\\:ss\\:fff");
 
-        _timeSlider.MaxValue = _videoPlayer.Length;
+        _timeSlider.MaxValue = _mediaPlayer.Length;
 
-        _timeSlider.SetValueNoSignal(_videoPlayer.Time);
+        _timeSlider.SetValueNoSignal(_mediaPlayer.Time);
 
-        _playbackButton.Icon = _videoPlayer.IsPlaying ? _pauseIcon : _playIcon;
+        _playbackButton.Icon = _mediaPlayer.IsPlaying ? _pauseIcon : _playIcon;
 
-        var videoTime = _videoPlayer.VideoProcess?.Time ?? 0.0;
+        var videoTime = _mediaPlayer.VideoProcess?.Time ?? 0.0;
 
-        var videoLength = _videoPlayer.VideoProcess?.Duration ?? 0.0;
+        var videoLength = _mediaPlayer.VideoProcess?.Duration ?? 0.0;
 
-        var audioTime = _videoPlayer.AudioProcess?.Time ?? 0.0;
+        var audioTime = _mediaPlayer.AudioProcess?.Time ?? 0.0;
 
-        var audioLength = _videoPlayer.AudioProcess?.Duration ?? 0.0;
+        var audioLength = _mediaPlayer.AudioProcess?.Duration ?? 0.0;
 
-        var difference = (_videoPlayer.IsVideoValid && _videoPlayer.IsAudioValid) ? (videoTime - audioTime) : 0.0;
+        var difference = (_mediaPlayer.IsVideoValid && _mediaPlayer.IsAudioValid) ? (videoTime - audioTime) : 0.0;
 
         _debugLabel.Text =
             $"Video Time | Length: {videoTime:F3} | {videoLength:F3}"
             + $"\nAudio Time | Length: {audioTime:F3} | {audioLength:F3}"
             + $"\n(Video {(difference == 0.0 ? "=" : difference > 0 ? ">" : "<")} Audio): {Mathf.Abs(difference):F3}"
-            + $"\nPlaying: {_videoPlayer.IsPlaying}"
-            + $"\nFinished: {_videoPlayer.IsFinished}"
+            + $"\nPlaying: {_mediaPlayer.IsPlaying}"
+            + $"\nFinished: {_mediaPlayer.IsFinished}"
         ;
 
         if (_showTimeout <= 0.0)

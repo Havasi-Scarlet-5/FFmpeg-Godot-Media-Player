@@ -31,7 +31,7 @@ thickness = 16
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kek77"]
 bg_color = Color(1, 1, 1, 1)
 
-[node name="FFmpegGodotMediaPlayerTest" type="Control" node_paths=PackedStringArray("_videoPlayer", "_debugLabel", "_timeLabel", "lengthLabel", "_timeSlider", "_playbackButton", "_stopButton", "_loopButton", "_controllerButton", "_fullScreenButton", "_openFileDialog", "_settingsWindow", "_ui", "_fileMenuButton")]
+[node name="FFmpegGodotMediaPlayerTest" type="Control" node_paths=PackedStringArray("_mediaPlayer", "_debugLabel", "_timeLabel", "lengthLabel", "_timeSlider", "_playbackButton", "_stopButton", "_loopButton", "_controllerButton", "_fullScreenButton", "_openFileDialog", "_settingsWindow", "_ui", "_fileMenuButton")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -39,7 +39,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_p5tp8")
-_videoPlayer = NodePath("BackgroundRect/FFmpegGodotMediaPlayer")
+_mediaPlayer = NodePath("BackgroundRect/FFmpegGodotMediaPlayer")
 _debugLabel = NodePath("UI/Gap/DebugLabel")
 _timeLabel = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/TimeLabel")
 lengthLabel = NodePath("UI/ControlContainer/VBoxContainer/MarginContainer/HBoxContainer/LengthLabel")

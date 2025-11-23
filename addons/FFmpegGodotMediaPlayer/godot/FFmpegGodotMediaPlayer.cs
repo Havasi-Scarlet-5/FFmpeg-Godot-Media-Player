@@ -14,7 +14,7 @@ public partial class FFmpegGodotMediaPlayer : Control
     public FFmpegGodotMediaSource Source
     {
         get => GetSource();
-        set => SetSource(value, LoadAsync);
+        set => SetSource(value);
     }
 
     [Export]
@@ -278,7 +278,7 @@ public partial class FFmpegGodotMediaPlayer : Control
     }
 
     [Export]
-    public double VideoDelayCompensation = -0.2;
+    public double VideoDelayCompensation = -0.1;
 
     [Export]
     public double VideoClockSyncThreshold = 0.05;
@@ -351,10 +351,13 @@ public partial class FFmpegGodotMediaPlayer : Control
     public bool IsFinished { get; private set; } = false;
 
     [Signal]
-    public delegate void FinishedEventHandler();
+    public delegate void OnFinishedEventHandler(FFmpegGodotMediaPlayer player);
 
     [Signal]
-    public delegate void LoadedCompletedEventHandler();
+    public delegate void OnLoadedCompletedEventHandler(FFmpegGodotMediaPlayer player);
+
+    [Signal]
+    public delegate void OnClosedEventHandler(FFmpegGodotMediaPlayer player);
 
     private double _lastAudioTime = 0.0;
 
@@ -422,7 +425,7 @@ public partial class FFmpegGodotMediaPlayer : Control
             }
         }
 
-        VideoProcess?.Update(_clockTime + VideoDelayCompensation);
+        VideoProcess?.Update(_clockTime + (IsAudioValid ? VideoDelayCompensation : 0.0));
 
         AudioProcess?.Update();
 
@@ -442,7 +445,7 @@ public partial class FFmpegGodotMediaPlayer : Control
             else
             {
                 Pause();
-                EmitSignal(SignalName.Finished);
+                EmitSignal(SignalName.OnFinished, this);
             }
         }
     }
@@ -471,7 +474,7 @@ public partial class FFmpegGodotMediaPlayer : Control
             AudioDecoder = new FFmpegAudioDecoder(src);
     }
 
-    public async void SetSource(FFmpegGodotMediaSource mediaSource, bool loadAsync = false)
+    public async void SetSource(FFmpegGodotMediaSource mediaSource)
     {
         Close();
 
@@ -480,7 +483,7 @@ public partial class FFmpegGodotMediaPlayer : Control
         if (!IsNodeReady() || _source == null)
             return;
 
-        if (loadAsync)
+        if (LoadAsync)
         {
             _loadCTS = new();
 
@@ -549,8 +552,7 @@ public partial class FFmpegGodotMediaPlayer : Control
         {
             Loaded = true;
 
-            if (loadAsync)
-                EmitSignal(SignalName.LoadedCompleted);
+            EmitSignal(SignalName.OnLoadedCompleted, this);
 
             if (AutoPlay)
                 Play();
@@ -559,7 +561,7 @@ public partial class FFmpegGodotMediaPlayer : Control
 
     public void Open(FFmpegGodotMediaSource source)
     {
-        SetSource(source, LoadAsync);
+        SetSource(source);
     }
 
     public void Close()
@@ -579,6 +581,8 @@ public partial class FFmpegGodotMediaPlayer : Control
         _source = null;
 
         Loaded = false;
+
+        EmitSignal(SignalName.OnClosed, this);
     }
 
     private void CloseVideo()
@@ -601,7 +605,7 @@ public partial class FFmpegGodotMediaPlayer : Control
 
     public void Play()
     {
-        if (IsPlaying)
+        if (!Loaded || IsPlaying)
             return;
 
         IsFinished = false;
